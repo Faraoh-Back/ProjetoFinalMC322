@@ -51,13 +51,13 @@ public class Knight extends Piece{
         //then, fills validMoves and piecesBlockingMoves
         for(Pos pos : validPositions){
             Piece pieceInPos = super.board.getPiece(pos);
-
-            if(pieceInPos.color == super.color){
-                validPositions.remove(pos);
-                piecesBlockingMoves.add(pieceInPos);
-            }else{
-                validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, pos));
+            if(pieceInPos != null){
+                if(pieceInPos.color == super.color){
+                    piecesBlockingMoves.add(pieceInPos);
+                    break;
+                }
             }
+            validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, pos));
         }
 
         return new MovesCalcResult(validMoves, piecesBlockingMoves);
