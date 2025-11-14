@@ -7,9 +7,9 @@ import com.google.common.graph.MutableGraph;
 
 import org.chess.Move;
 import org.chess.Pos;
+import org.chess.pieces.King;
+import org.chess.pieces.Piece;
 import org.chess.Color;
-import org.chess.King;
-import org.chess.Piece;
 import org.chess.Player;
 
 import java.util.EnumMap;
@@ -44,7 +44,7 @@ public class Board {
   public Pos getPos(Piece piece) {
   }
 
-  public Pos getPiece(Pos pos) {
+  public Piece getPiece(Pos pos) {
   }
 
 

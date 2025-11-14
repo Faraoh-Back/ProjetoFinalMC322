@@ -1,5 +1,6 @@
-package org.chess;
+package org.chess.pieces;
 
+import org.chess.Color;
 import org.chess.board.Board;
 
 public class King extends Piece {

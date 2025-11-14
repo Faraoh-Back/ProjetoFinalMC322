@@ -1,8 +1,8 @@
 package org.chess.board;
 
 import org.chess.Move;
-import org.chess.Piece;
 import org.chess.Pos;
+import org.chess.pieces.Piece;
 
 import java.util.HashMap;
 import java.util.List;
