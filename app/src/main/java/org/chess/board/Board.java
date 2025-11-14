@@ -48,7 +48,7 @@ public class Board {
    * @param clockTimeNanosec
    */
   public Board(long clockTimeNanosec) {
-    // Get pieces form gelper method and:
+    // Get pieces from helper method and:
     // - adds them to players' pieces list
     // - add them to `Pieces` BiMap.
     // Once all are added, they are reevaluated.
@@ -207,10 +207,6 @@ public class Board {
 
   /**
    * A helper record.
-   * 
-   * @param piece
-   * @param row
-   * @param column
    */
   private static record ConstructorHelper(Piece piece, Pos pos) {
   }
@@ -219,6 +215,7 @@ public class Board {
    * A helper function to construct all pieces. The pieces follow the layout
    * below, with red on top, yellow on the left side, blue on the right side and
    * green on the bottom.
+   Top left corner is (1,1).
    *
    * ___rkbKqbkr___
    * ___pppppppp___
@@ -239,78 +236,77 @@ public class Board {
    */
   private ConstructorHelper[] constructorHelper() {
     ConstructorHelper[] array = {
-        new ConstructorHelper(new Rook(Color.RED, this), new Pos(0, 3)),
-        new ConstructorHelper(new Knight(Color.RED, this), new Pos(0, 4)),
-        new ConstructorHelper(new Bishop(Color.RED, this), new Pos(0, 5)),
-        new ConstructorHelper(new King(Color.RED, this), new Pos(0, 6)),
-        new ConstructorHelper(new Queen(Color.RED, this), new Pos(0, 7)),
-        new ConstructorHelper(new Bishop(Color.RED, this), new Pos(0, 8)),
-        new ConstructorHelper(new Knight(Color.RED, this), new Pos(0, 9)),
-        new ConstructorHelper(new Rook(Color.RED, this), new Pos(0, 10)),
+        new ConstructorHelper(new Rook(Color.RED, this), new Pos(1, 4)),
+        new ConstructorHelper(new Knight(Color.RED, this), new Pos(1, 5)),
+        new ConstructorHelper(new Bishop(Color.RED, this), new Pos(1, 6)),
+        new ConstructorHelper(new King(Color.RED, this), new Pos(1, 7)),
+        new ConstructorHelper(new Queen(Color.RED, this), new Pos(1, 8)),
+        new ConstructorHelper(new Bishop(Color.RED, this), new Pos(1, 9)),
+        new ConstructorHelper(new Knight(Color.RED, this), new Pos(1, 10)),
+        new ConstructorHelper(new Rook(Color.RED, this), new Pos(1, 11)),
 
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 3)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 4)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 5)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 6)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 7)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 8)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 9)),
-        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(1, 10)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 4)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 5)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 6)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 7)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 8)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 9)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 10)),
+        new ConstructorHelper(new Pawn(Color.RED, this), new Pos(2, 11)),
 
-        new ConstructorHelper(new Rook(Color.YELLOW, this), new Pos(3, 13)),
-        new ConstructorHelper(new Knight(Color.YELLOW, this), new Pos(4, 13)),
-        new ConstructorHelper(new Bishop(Color.YELLOW, this), new Pos(5, 13)),
-        new ConstructorHelper(new Queen(Color.YELLOW, this), new Pos(6, 13)),
-        new ConstructorHelper(new King(Color.YELLOW, this), new Pos(7, 13)),
-        new ConstructorHelper(new Bishop(Color.YELLOW, this), new Pos(8, 13)),
-        new ConstructorHelper(new Knight(Color.YELLOW, this), new Pos(9, 13)),
-        new ConstructorHelper(new Rook(Color.YELLOW, this), new Pos(10, 13)),
+        new ConstructorHelper(new Rook(Color.YELLOW, this), new Pos(4, 14)),
+        new ConstructorHelper(new Knight(Color.YELLOW, this), new Pos(5, 14)),
+        new ConstructorHelper(new Bishop(Color.YELLOW, this), new Pos(6, 14)),
+        new ConstructorHelper(new Queen(Color.YELLOW, this), new Pos(7, 14)),
+        new ConstructorHelper(new King(Color.YELLOW, this), new Pos(8, 14)),
+        new ConstructorHelper(new Bishop(Color.YELLOW, this), new Pos(9, 14)),
+        new ConstructorHelper(new Knight(Color.YELLOW, this), new Pos(10, 14)),
+        new ConstructorHelper(new Rook(Color.YELLOW, this), new Pos(11, 14)),
 
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(7, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(3, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(4, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(5, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(6, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(8, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(9, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(10, 12)),
-        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(3, 12)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(4, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(5, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(6, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(7, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(8, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(9, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(10, 13)),
+        new ConstructorHelper(new Pawn(Color.YELLOW, this), new Pos(11, 13)),
 
-        new ConstructorHelper(new Rook(Color.BLUE, this), new Pos(3, 0)),
-        new ConstructorHelper(new Knight(Color.BLUE, this), new Pos(4, 0)),
-        new ConstructorHelper(new Bishop(Color.BLUE, this), new Pos(5, 0)),
-        new ConstructorHelper(new King(Color.BLUE, this), new Pos(6, 0)),
-        new ConstructorHelper(new Queen(Color.BLUE, this), new Pos(7, 0)),
-        new ConstructorHelper(new Bishop(Color.BLUE, this), new Pos(8, 0)),
-        new ConstructorHelper(new Knight(Color.BLUE, this), new Pos(9, 0)),
-        new ConstructorHelper(new Rook(Color.BLUE, this), new Pos(10, 0)),
+        new ConstructorHelper(new Rook(Color.BLUE, this), new Pos(4, 1)),
+        new ConstructorHelper(new Knight(Color.BLUE, this), new Pos(5, 1)),
+        new ConstructorHelper(new Bishop(Color.BLUE, this), new Pos(6, 1)),
+        new ConstructorHelper(new King(Color.BLUE, this), new Pos(7, 1)),
+        new ConstructorHelper(new Queen(Color.BLUE, this), new Pos(8, 1)),
+        new ConstructorHelper(new Bishop(Color.BLUE, this), new Pos(9, 1)),
+        new ConstructorHelper(new Knight(Color.BLUE, this), new Pos(10, 1)),
+        new ConstructorHelper(new Rook(Color.BLUE, this), new Pos(11, 1)),
 
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(3, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(4, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(5, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(6, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(7, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(8, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(9, 1)),
-        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(10, 1)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(4, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(5, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(6, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(7, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(8, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(9, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(10, 2)),
+        new ConstructorHelper(new Pawn(Color.BLUE, this), new Pos(11, 2)),
 
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 3)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 4)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 5)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 6)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 7)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 8)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 9)),
-        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(12, 10)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 4)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 5)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 6)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 7)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 8)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 9)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 10)),
+        new ConstructorHelper(new Pawn(Color.GREEN, this), new Pos(13, 11)),
 
-        new ConstructorHelper(new Rook(Color.GREEN, this), new Pos(13, 3)),
-        new ConstructorHelper(new Knight(Color.GREEN, this), new Pos(13, 4)),
-        new ConstructorHelper(new Bishop(Color.GREEN, this), new Pos(13, 5)),
-        new ConstructorHelper(new Queen(Color.GREEN, this), new Pos(13, 6)),
-        new ConstructorHelper(new King(Color.GREEN, this), new Pos(13, 7)),
-        new ConstructorHelper(new Bishop(Color.GREEN, this), new Pos(13, 8)),
-        new ConstructorHelper(new Knight(Color.GREEN, this), new Pos(13, 9)),
-        new ConstructorHelper(new Rook(Color.GREEN, this), new Pos(13, 1)),
+        new ConstructorHelper(new Rook(Color.GREEN, this), new Pos(14, 4)),
+        new ConstructorHelper(new Knight(Color.GREEN, this), new Pos(14, 5)),
+        new ConstructorHelper(new Bishop(Color.GREEN, this), new Pos(14, 6)),
+        new ConstructorHelper(new Queen(Color.GREEN, this), new Pos(14, 7)),
+        new ConstructorHelper(new King(Color.GREEN, this), new Pos(14, 8)),
+        new ConstructorHelper(new Bishop(Color.GREEN, this), new Pos(14, 9)),
+        new ConstructorHelper(new Knight(Color.GREEN, this), new Pos(14, 10)),
+        new ConstructorHelper(new Rook(Color.GREEN, this), new Pos(14, 11)),
     };
     return array;
   }
