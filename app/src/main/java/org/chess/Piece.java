@@ -1,6 +1,6 @@
 package org.chess;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.chess.board.Board;
 
@@ -13,7 +13,7 @@ public abstract class Piece {
     this.board = board;
   }
 
-  public static record MovesCalcResult(List<Move> validMoves, List<Piece> piecesBlockingMoves) {}
+  public static record MovesCalcResult(Collection<Move> moves, Collection<Pos> dependencies) {}
   
   public abstract MovesCalcResult calculateMoves();
 

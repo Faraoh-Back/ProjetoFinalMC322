@@ -10,8 +10,8 @@ public class King extends Piece {
 	}
 
 	@Override
-	public MovesCalcResult calculateMoves() {
-		// TODO
+	public MovesCalcResult calculateMoves() throws PieceNotInBoard {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'calculateMoves'");
 	}
-
 }

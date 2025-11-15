@@ -25,18 +25,9 @@ import com.google.common.graph.MutableGraph;
  * TODO
  */
 public class Board {
-  /** Data structure to store all currently possible moves */
-  private final PossibleMoves moves = new PossibleMoves();
 
   /** Data structure to store all pieces, and their positions. */
-  private final BiMap<Pos, Piece> pieces = HashBiMap.create();
-
-  /**
-   *
-   * Data structure to store which piece is blocking some piece's movement.
-   * A -> B means A is blocking B
-   */
-  private final MutableGraph<Piece> isBlockingGraph = GraphBuilder.directed().build();
+  private final BoardState boardState = new BoardState();
 
   /** Data structure to store all players. */
   private final Map<Color, Player> players = new EnumMap<>(Color.class);
@@ -48,29 +39,19 @@ public class Board {
    * @param clockTimeNanosec
    */
   public Board(long clockTimeNanosec) {
-    // Get pieces from helper method and:
-    // - adds them to players' pieces list
-    // - add them to `Pieces` BiMap.
-    // Once all are added, they are reevaluated.
     EnumMap<Color, List<Piece>> playersPieces = new EnumMap<>(Color.class);
-    List<Piece> allPieces = new ArrayList<>();
 
     for (Color color : Color.values())
       playersPieces.put(color, new ArrayList<>());
 
     for (var pieceAndPos : constructorHelper()) {
       Color color = pieceAndPos.piece.color;
-      allPieces.add(pieceAndPos.piece);
       if (pieceAndPos.piece instanceof King king) {
         players.put(color, new Player(playersPieces.get(color), king, new Clock(clockTimeNanosec), color));
       }
       playersPieces.get(color).add(pieceAndPos.piece);
-      pieces.put(pieceAndPos.pos, pieceAndPos.piece);
-    }
-
-    for (Piece piece : allPieces) {
-      reevaluate(piece);
-    }
+      boardState.addPiece(pieceAndPos.piece, pieceAndPos.pos);
+    } // TODO: refactor everything.
   }
 
   public int getNOfPlayers() {
@@ -81,37 +62,61 @@ public class Board {
     return players.get(color);
   }
 
-  public Pos getPos(Piece piece) {
-    return pieces.inverse().get(piece);
-  }
-
-  public Piece getPiece(Pos pos) {
-    return pieces.get(pos);
-  }
-
-  /**
-   * @return all kings that can be taken by some piece.
-   */
   public List<King> getEndangeredKings() {
     return players.values()
         .stream()
         .map(p -> p.king())
-        .filter(p -> moves.isInDanger(p))
+        .filter(p -> boardState.isDangerous(boardState.getPos(p), p.color))
         .toList();
   }
 
   public void doMove(Move move) {
-    // check player clock to see if it still has time.
-    // switch-case for every type of move
-    // add move to history
-    // if pieces were taken, add them to history.:w
-    // save all edges from the moving piece in a temp variable.
-    // re-evaluate the moving piece if it is not a king
-    // re-evaluate all pieces poited by edges in the temp variable.
-    // re-evaluate the moving piece if it is a king
-
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'doMove'");
+    // TODO: check player clock to see if it still has time?
+    // TODO: add to hystory
+    switch (move.type()) {
+      case SIMPLE_MOVE:
+        boardState.movePiece(move.piece(), move.movingTo());
+        break;
+      case BISHOP_PROMOTION:
+        boardState.movePiece(move.piece(), move.movingTo());
+        boardState.removePiece(move.piece());
+        Piece bishop = new Bishop(move.piece().color, this);
+        boardState.addPiece(bishop, move.movingTo());
+        break;
+      case QUEEN_PROMOTION:
+        boardState.movePiece(move.piece(), move.movingTo());
+        boardState.removePiece(move.piece());
+        Piece queen = new Queen(move.piece().color, this);
+        boardState.addPiece(queen, move.movingTo());
+        break;
+      case ROOK_PROMOTION:
+        boardState.movePiece(move.piece(), move.movingTo());
+        boardState.removePiece(move.piece());
+        Piece rook = new Rook(move.piece().color, this);
+        boardState.addPiece(rook, move.movingTo());
+        break;
+      case KNIGHT_PROMOTION:
+        boardState.movePiece(move.piece(), move.movingTo());
+        boardState.removePiece(move.piece());
+        Piece knight = new Knight(move.piece().color, this);
+        boardState.addPiece(knight, move.movingTo());
+        break;
+      case KINGSIDE_CASTLING:
+        boardState.movePiece(move.piece(), move.movingTo());
+        Pos rookPos = switch (move.piece().color) {
+          case RED -> new Pos(1,6);
+          case BLUE -> new Pos (9, 14);
+          case YELLOW -> new Pos(6, 1);
+          case GREEN -> new Pos(14, 9);
+        };
+        // TODO: get player's rook
+        // boardState.movePiece(players, rookPos);
+        break;
+      case QUEENSIDE_CASTLING:
+        break;
+      default:
+        throw new IllegalStateException("Unexpected enum.");
+    }
   }
 
   /**
@@ -138,74 +143,6 @@ public class Board {
   }
 
   /**
-   * Updates `isBlockingGraph` with all pieces that are blocking `piece`.
-   * Updates `moves` with piece's valid moves.
-   * 
-   * @param piece
-   */
-  private void reevaluate(Piece piece) {
-    var calcResult = piece.calculateMoves();
-    isBlockingGraph.predecessors(piece).forEach(p -> isBlockingGraph.removeEdge(p, piece));
-    calcResult.piecesBlockingMoves().forEach(p -> isBlockingGraph.putEdge(p, piece));
-    moves.getMovesView(piece).forEach(m -> moves.forgetMove(m));
-    calcResult.validMoves().forEach(m -> moves.submitMove(m));
-  }
-
-  /**
-   * removes it from the `pieces` BiMap
-   * removes it's moves from `moves` data structure.
-   * reevaluates all pieces that were blocked by it.
-   * Removes it's player if it was the king.
-   * *
-   * 
-   * @param player's color
-   */
-  private void removePiece(Piece piece) {
-    Player player = players.get(piece.color);
-    if (player.king() == piece) {
-      // could just remove from the `players` hash.
-      // But if any extra logic is added to removePlayer() it would need to be added
-      // here as well.
-      removePlayer(player.color());
-      return;
-    }
-
-    pieces.inverse().remove(piece);
-    moves.forgetPiece(piece);
-    Set<Piece> wereBlocked = isBlockingGraph.successors(piece);
-    isBlockingGraph.removeNode(piece);
-    wereBlocked.forEach(p -> reevaluate(p));
-    player.pieces().remove(piece);
-  }
-
-  /**
-   * Find a player by their color.
-   * removes their pieces from the `pieces` BiMap
-   * removes their pieces' moves from `moves` data structure.
-   * reevaluates all pieces that were blocked by their pieces.
-   * 
-   * @param player's color
-   */
-  private void removePlayer(Color color) {
-    // It is better to reevaluate once all pieces have been removed from
-    // `pieces` and their moves have been removed from `moves`. otherwise a
-    // piece could be reevaluated twice, which is wastefull.
-    // That's why we're not calling removePiece for each piece.
-
-    Set<Piece> wereBlocked = new HashSet<>();
-    players.get(color)
-        .pieces()
-        .forEach(piece -> {
-          pieces.inverse().remove(piece);
-          moves.forgetPiece(piece);
-          wereBlocked.addAll(isBlockingGraph.successors(piece));
-          isBlockingGraph.removeNode(piece);
-        });
-    wereBlocked.forEach(p -> reevaluate(p));
-    players.remove(color);
-  }
-
-  /**
    * A helper record.
    */
   private static record ConstructorHelper(Piece piece, Pos pos) {
@@ -225,7 +162,7 @@ public class Board {
    * bp@@@@@@@@@@pb
    * Kp@@@@@@@@@@pq
    * qp@@@@@@@@@@pK
-   * Bp@@@@@@@@@@pB
+   * bp@@@@@@@@@@pb
    * kp@@@@@@@@@@pk
    * rp@@@@@@@@@@pr
    * ___@@@@@@@@___
