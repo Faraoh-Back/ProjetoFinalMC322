@@ -20,7 +20,7 @@ public abstract class Piece {
   /**
    * For a specific piece, calculates valid moves and 
    * pieces blocking the way, then, returns a record 
-   * (MovesCalcResult) that stores sthose informations.
+   * (MovesCalcResult) that stores this information.
    */
   public abstract MovesCalcResult calculateMoves();
 
