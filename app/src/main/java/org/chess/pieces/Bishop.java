@@ -1,11 +1,11 @@
-package org.chess.board;
+package org.chess.pieces;
 
 import org.chess.Color;
-import org.chess.Piece;
+import org.chess.board.Board;
 
-public class Queen extends Piece {
+public class Bishop extends Piece {
 
-	public Queen(Color color, Board board) {
+	public Bishop(Color color, Board board) {
 		super(color, board);
 	}
 

@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.chess.Color;
-import org.chess.King;
-import org.chess.Piece;
 import org.chess.PieceNotInBoard;
+import org.chess.pieces.King;
+import org.chess.pieces.Piece;
 import org.chess.Pos;
 
 import com.google.common.collect.BiMap;
@@ -40,8 +40,6 @@ class BoardState {
    * called.
    */
   private final PossibleMoves moves = new PossibleMoves(); 
-
-  private boolean canCalculateDanger = true;
 
   // ##################################################
   // Constructor
@@ -192,13 +190,13 @@ class BoardState {
     
     for (Piece piece : pieces) {
       moves.removeAll(piece);
-      dependencies.removeAllDependencies(piece);
+      dependencies.removeAll(piece);
       if (piece instanceof King king) {
         kings.add(king);
       } else {
         try {
           var calcResult = piece.calculateMoves();
-          dependencies.addAllDependencies(piece, calcResult.dependencies());
+          dependencies.addAll(piece, calcResult.dependencies());
           moves.addAll(calcResult.moves());
         } catch (PieceNotInBoard e) {
           continue;
@@ -209,7 +207,9 @@ class BoardState {
     for (King king : kings) {
       try {
         var calcResult = king.calculateMoves();
-        dependencies.addAllDependencies(king, calcResult.dependencies());
+
+        king.calculateMoves(isDangerous);
+        dependencies.addAll(king, calcResult.dependencies());
         moves.addAll(calcResult.moves());
       } catch (PieceNotInBoard e) {
         continue;
@@ -217,3 +217,5 @@ class BoardState {
     }
   }
 }
+
+

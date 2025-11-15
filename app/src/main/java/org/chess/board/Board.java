@@ -2,23 +2,21 @@ package org.chess.board;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.chess.Clock;
 import org.chess.Color;
-import org.chess.King;
 import org.chess.Move;
-import org.chess.Piece;
 import org.chess.Player;
 import org.chess.Pos;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
+import org.chess.pieces.Bishop;
+import org.chess.pieces.King;
+import org.chess.pieces.Knight;
+import org.chess.pieces.Pawn;
+import org.chess.pieces.Piece;
+import org.chess.pieces.Queen;
+import org.chess.pieces.Rook;
 
 /**
  * Board
@@ -39,7 +37,7 @@ public class Board {
    * @param clockTimeNanosec
    */
   public Board(long clockTimeNanosec) {
-    EnumMap<Color, List<Piece>> playersPieces = new EnumMap<>(Color.class);
+    EnumMap<Color, List<org.chess.pieces.Piece>> playersPieces = new EnumMap<>(Color.class);
 
     for (Color color : Color.values())
       playersPieces.put(color, new ArrayList<>());

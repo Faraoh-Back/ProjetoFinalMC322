@@ -1,17 +1,17 @@
 package org.chess.board;
 
-import org.chess.Move;
-import org.chess.Piece;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.chess.Color;
+import org.chess.Move;
 import org.chess.Pos;
+import org.chess.pieces.Piece;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 class PossibleMoves {
   private final Map<Pos, Multimap<Color, Move>> posColorMovesMap = new HashMap<>();

@@ -1,11 +1,11 @@
-package org.chess.board;
+package org.chess.pieces;
 
 import org.chess.Color;
-import org.chess.Piece;
+import org.chess.board.Board;
 
-public class Pawn extends Piece {
+public class Rook extends Piece {
 
-	public Pawn(Color color, Board board) {
+	public Rook(Color color, Board board) {
 		super(color, board);
 	}
 

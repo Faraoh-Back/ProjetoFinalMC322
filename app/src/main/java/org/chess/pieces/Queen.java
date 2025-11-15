@@ -1,16 +1,16 @@
-package org.chess;
+package org.chess.pieces;
 
+import org.chess.Color;
 import org.chess.board.Board;
 
-public class King extends Piece {
+public class Queen extends Piece {
 
-	public King(Color color, Board board) {
+	public Queen(Color color, Board board) {
 		super(color, board);
-		//TODO
 	}
 
 	@Override
-	public MovesCalcResult calculateMoves() throws PieceNotInBoard {
+	public MovesCalcResult calculateMoves() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'calculateMoves'");
 	}

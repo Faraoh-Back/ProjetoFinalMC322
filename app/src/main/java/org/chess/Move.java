@@ -1,5 +1,7 @@
 package org.chess;
 
+import org.chess.pieces.Piece;
+
 /**
  * Move
  */

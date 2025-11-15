@@ -1,7 +1,7 @@
 package org.chess.board;
 
 import org.chess.Move;
-import org.chess.Piece;
+import org.chess.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.HashMap;

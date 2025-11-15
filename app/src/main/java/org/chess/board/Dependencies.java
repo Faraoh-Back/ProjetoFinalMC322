@@ -2,7 +2,7 @@ package org.chess.board;
 
 import java.util.Collection;
 
-import org.chess.Piece;
+import org.chess.pieces.Piece;
 import org.chess.Pos;
 
 import com.google.common.collect.HashMultimap;
@@ -11,7 +11,10 @@ import com.google.common.collect.Multimap;
 /**
  * Data structure to store the dependencies between pieces and positions.
  * We say a piece A is dependent on a postition B if A's possible moves could
- * change when a piece on B moves.
+ * change when:
+ * - A piece moves to B.
+ * - A piece on B is removed.
+ * - A piece is added to B.
  */
 class Dependencies {
   private final Multimap<Piece, Pos> piecePosMap = HashMultimap.create();
@@ -25,7 +28,7 @@ class Dependencies {
     posPieceMap.put(pos, piece);
   }
 
-  public void addAllDependencies(Piece piece, Collection<Pos> dependencies) {
+  public void addAll(Piece piece, Collection<Pos> dependencies) {
     piecePosMap.putAll(piece, dependencies);
     for (Pos pos : dependencies) {
       posPieceMap.put(pos, piece);
@@ -37,7 +40,7 @@ class Dependencies {
     posPieceMap.remove(pos, piece);
   }
 
-  public Collection<Pos> removeAllDependencies(Piece piece) {
+  public Collection<Pos> removeAll(Piece piece) {
     var positions = piecePosMap.removeAll(piece);
     for (Pos pos : positions) {
       posPieceMap.remove(pos, piece);
