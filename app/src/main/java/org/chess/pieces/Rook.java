@@ -1,16 +1,19 @@
 package org.chess.pieces;
 
 import org.chess.Color;
-import org.chess.board.Board;
+import org.chess.PieceNotInBoard;
+import org.chess.Pos;
 
-public class Rook extends Piece {
+import com.google.common.collect.BiMap;
 
-	public Rook(Color color, Board board) {
-		super(color, board);
+public class Rook extends NonKing {
+	public Rook(Color color) {
+		super(color);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public MovesCalcResult calculateMoves() {
+	public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'calculateMoves'");
 	}
