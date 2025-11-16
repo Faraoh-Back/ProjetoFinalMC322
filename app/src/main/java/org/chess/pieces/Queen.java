@@ -35,7 +35,7 @@ public class Queen extends Piece{
     
         //Checks every direction for possible moves
         for(Direction direction : Direction.values()){
-            Direction.checkDirection(validMoves, dependencies, this, row, column, boardState, direction);
+            checkDirection(validMoves, dependencies, this, row, column, boardState);
         }
         return new MovesCalcResult(validMoves, dependencies);
 
