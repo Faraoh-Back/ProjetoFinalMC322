@@ -34,7 +34,7 @@ public class Rook extends NonKing{
         //Checks directions in wich a Rook can move, filling up the arguments for MovesCalcResult
         Direction[] possiblDirections = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
         for(Direction direction : possiblDirections){
-            Direction.checkDirection(validMoves, dependencies, this, row, column, boardState, direction);
+            direction.checkDirection(validMoves, dependencies, this, row, column, boardState);
         }
         
         return new MovesCalcResult(validMoves, dependencies);
