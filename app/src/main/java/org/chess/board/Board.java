@@ -26,7 +26,7 @@ import com.google.common.collect.HashBiMap;
 /**
  * Manages the relation between each piece and its position.
  */
-class BoardState {
+class Board {
   // ###########################################################################
   // Data structures
   // ###########################################################################
@@ -59,7 +59,7 @@ class BoardState {
   // Public interface
   // ###########################################################################
 
-  public BoardState(Map<Pos, Piece> initialState) {
+  public Board(Map<Pos, Piece> initialState) {
     Collection<Piece> needReevaluation = new ArrayList<>();
     for (Entry<Pos, Piece> entrySet : initialState.entrySet()) {
       needReevaluation.addAll(addPieceHelper(entrySet.getKey(), entrySet.getValue()));
