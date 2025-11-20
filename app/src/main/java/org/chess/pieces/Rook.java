@@ -15,6 +15,7 @@ public class Rook extends NonKing{
         super(color);
     }
 
+    @Override
     public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard{
 
         //Checks if piece is on the board

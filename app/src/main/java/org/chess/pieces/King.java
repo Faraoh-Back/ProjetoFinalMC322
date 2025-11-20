@@ -2,12 +2,18 @@ package org.chess.pieces;
 
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.Map;
+
+import com.google.common.collect.BiMap;
 
 import org.chess.Color;
 import org.chess.board.Board;
 import org.chess.Pos;
 import org.chess.Move.MoveType;
+import org.chess.PieceNotInBoard;
 import org.chess.Move;
 
 public class King extends Piece {
@@ -18,89 +24,12 @@ public class King extends Piece {
 		super(color);
 	}
 
-	@Override
-	public MovesCalcResult calculateMoves() {
+	public static MovesCalcResult calculateMoves(Collection<King> kings, BiMap<Pos, Piece> boardState, Map<Color, Predicate<Pos>> dangerMap) throws PieceNotInBoard{
 		Piece kingSideRook;
 		Piece queenSideRook;
 		int row;
 		int column;
 		int[] directionHelper;
-
-		Pos kingPos = super.board.getPos(this);
-		row = kingPos.row();
-		column = kingPos.column();
-		switch(color){
-			case GREEN:
-				//king side rook position in relation to king
-				//queen side rook position in relation to king
-				//information to iterate until rooks
-				directionHelper = new int[]{0, 3, 0, -4, column, 1};
-				break;
-			case YELLOW:
-				directionHelper = new int[]{3, 0, -4, 0, row, 1};
-				break;
-			case RED:
-				directionHelper = new int[]{0, -3, 0, 4, column, -1};
-				break;
-			case BLUE:
-				directionHelper = new int[]{-3, 0, 4, 0, row, -1};
-				break;
-			default:
-				throw new IllegalStateException("Unexpected Enum");
-		}
-		kingSideRook = super.board.getPiece(new Pos(row + directionHelper[0], column + directionHelper[1]));
-		queenSideRook = super.board.getPiece(new Pos(row + directionHelper[2], column + directionHelper[3]));
-
-
-		ArrayList<Move> validMoves = new ArrayList<Move>();
-		ArrayList<Piece> piecesBlockingMoves = new ArrayList<Piece>();
-
-		//check castling
-		List<Move> kingHistory = board.history.getMovesView(this);
-		List<Move> kingsideHistory = board.history.getMovesView(kingSideRook);
-		List<Move> queensideHistory = board.history.getMovesView(queenSideRook);
-		if(kingHistory.isEmpty()){
-			//king side castling check
-			if(kingsideHistory.isEmpty()){
-				for(int i = directionHelper[4]+1; i <= directionHelper[4] + (3 * directionHelper[5]); i = i + directionHelper[5]){
-					Pos tempPos = null;
-					Pos castlingPos = null;
-					if(directionHelper[4] == column){
-						tempPos = new Pos(row, i);
-						castlingPos = new Pos(row, column + (2 * directionHelper[5]));
-					}else{
-						tempPos = new Pos(i, column);
-						castlingPos = new Pos(row + (2 * directionHelper[5]), column);
-					}
-					Piece pieceInPos = super.board.getPiece(tempPos);
-					if(pieceInPos != null){
-						piecesBlockingMoves.add(pieceInPos);
-					}else if(pieceInPos == kingSideRook){
-						checkForDanger(MoveType.KINGSIDE_CASTLING, castlingPos);
-					}
-				}
-			}
-			//queen side castling check
-			if(queensideHistory.isEmpty()){
-				for(int i = directionHelper[4]+1; i <= directionHelper[4] - (4 * directionHelper[5]); i = i + directionHelper[5]){
-					Pos tempPos = null;
-					Pos castlingPos = null;
-					if(directionHelper[4] == column){
-						tempPos = new Pos(row, i);
-						castlingPos = new Pos(row, column + (2 * directionHelper[5]));
-					}else{
-						tempPos = new Pos(i, column);
-						castlingPos = new Pos(row + (2 * directionHelper[5]), column);
-					}
-					Piece pieceInPos = super.board.getPiece(tempPos);
-					if(pieceInPos != null){
-						piecesBlockingMoves.add(pieceInPos);
-					}else if(pieceInPos == kingSideRook){
-						checkForDanger(MoveType.QUEENSIDE_CASTLING, castlingPos);
-					}
-				}
-			}	
-		}
 
 		//Normal King Move
 		int[][] possibleMoves = {
@@ -116,9 +45,9 @@ public class King extends Piece {
 		for(int[] pos : possibleMoves){
 			try{
 				Pos tempPos = new Pos(pos[0], pos[1]);
-				Piece pieceInPos = super.board.getPiece(tempPos);
+				Piece pieceInPos = boardState.getPiece(tempPos);
 				if(pieceInPos != null){
-					if(pieceInPos.color == super.color){
+					if(pieceInPos.color == .color){
 						piecesBlockingMoves.add(pieceInPos);
 					}else{
 						checkForDanger(MoveType.SIMPLE_MOVE, tempPos);

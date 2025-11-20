@@ -10,12 +10,13 @@ import org.chess.Pos;
 
 
 
-public class Queen extends Piece{
+public class Queen extends NonKing{
     
     public Queen(Color color){
         super(color);
     }
 
+    @Override
     public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard{
 
         //Checks if piece is on the board

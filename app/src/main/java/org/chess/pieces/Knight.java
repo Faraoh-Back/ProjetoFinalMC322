@@ -17,7 +17,7 @@ public class Knight extends NonKing{
     }
 
     
-
+    @Override
     public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard{
         //Checks if piece is on the board
         Pos thisPos = boardState.inverse().get(this);
@@ -51,13 +51,14 @@ public class Knight extends NonKing{
         for(int[] pos : possibleMoves){
             try{
                 Pos tempPos = new Pos(pos[0], pos[1]);
+                dependencies.add(tempPos);
                 Piece pieceInPos = boardState.get(tempPos);
-                if(pieceInPos != null && pieceInPos.color == super.color){
-					dependencies.add(tempPos);
-				}else{
-					validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
-				}
-                
+                if(pieceInPos != null){
+                    if(pieceInPos.color != super.color){
+                        continue;
+                    }
+                }
+                validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
             }catch(IllegalArgumentException e){}
         }
 
