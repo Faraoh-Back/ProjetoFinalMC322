@@ -1,19 +1,26 @@
 package org.chess.pieces;
 
 import java.util.ArrayList;
-import com.google.common.collect.BiMap;
 
 import org.chess.Color;
 import org.chess.Move;
+import org.chess.Move.MoveType;
 import org.chess.PieceNotInBoard;
 import org.chess.Pos;
-import org.chess.Move.MoveType;
 
+import com.google.common.collect.BiMap;
 
-public class Knight extends NonKing{
+public class Knight extends NonKing {
 
-    public Knight(Color color){
-        super(color);
+  public Knight(Color color) {
+    super(color);
+  }
+
+  public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard {
+    // Checks if piece is on the board
+    Pos thisPos = boardState.inverse().get(this);
+    if (thisPos == null) {
+      throw new PieceNotInBoard();
     }
 
     
@@ -65,5 +72,6 @@ public class Knight extends NonKing{
         return new MovesCalcResult(validMoves, dependencies);
         
     }
-
+    return new MovesCalcResult(validMoves, dependencies);
+  }
 }

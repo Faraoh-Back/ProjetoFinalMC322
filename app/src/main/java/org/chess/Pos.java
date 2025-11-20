@@ -81,7 +81,7 @@ public record Pos(int row, int column) {
     nOfRotations %= 4;
     return switch (nOfRotations) {
       case 0 -> this;
-      case 1 -> new Pos(15 - this.row, this.column);
+      case 1 -> new Pos(this.column, 15 - this.row);
       case 2 -> new Pos(15 - this.row, 15 - this.column);
       case 3 -> new Pos(15 - this.column, this.row);
       default -> throw new IllegalStateException("Unexpected remainder.");
