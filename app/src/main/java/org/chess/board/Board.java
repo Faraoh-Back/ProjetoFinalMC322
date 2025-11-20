@@ -44,7 +44,7 @@ public class Board {
   public Pos getPos(Piece piece) {
   }
 
-  public Pos getPiece(Pos pos) {
+  public Piece getPiece(Pos pos) {
   }
 
 
