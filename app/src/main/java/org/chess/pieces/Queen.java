@@ -36,7 +36,7 @@ public class Queen extends NonKing{
     
         //Checks every direction for possible moves
         for(Direction direction : Direction.values()){
-            Direction.checkDirection(validMoves, dependencies, boardState,  this, row, column, direction);
+            direction.checkDirection(validMoves, dependencies, boardState,  this, row, column);
         }
         return new MovesCalcResult(validMoves, dependencies);
 

@@ -31,15 +31,15 @@ public enum Direction {
         columnDirection = cD;
     }
     
-    public static void checkDirection(List<Move> validMoves, List<Pos> dependencies, BiMap<Pos, Piece> boardState, Piece piece, int row, int column, Direction direction){
-        int rowCounter = direction.rowDirection;
-        int columnConter = direction.columnDirection;
+    public void checkDirection(List<Move> validMoves, List<Pos> dependencies, BiMap<Pos, Piece> boardState, Piece piece, int row, int column){
+        int rowCounter = rowDirection;
+        int columnConter = columnDirection;
         while(true){
             try{
                 Pos pos = new Pos(row + rowCounter, column + columnConter);
                 dependencies.add(pos);
-                rowCounter += direction.rowDirection;
-                columnConter += direction.columnDirection;
+                rowCounter += rowDirection;
+                columnConter += columnDirection;
                 Piece pieceInPos = boardState.get(pos);
                 if(pieceInPos != null){
                     if(pieceInPos.color != piece.color){
