@@ -34,7 +34,7 @@ public class Bishop extends NonKing{
         //Checks directions in wich a Bishop can move, filling up the arguments for MovesCalcResult
         Direction[] possibleDirections = {Direction.SOUTHEAST, Direction.SOUTHWEST, Direction.NORTHEAST, Direction.NORTHWEST};
         for(Direction direction : possibleDirections){
-            direction.checkDirection(validMoves, dependencies, this, row, column, boardState);
+            Direction.checkDirection(validMoves, dependencies, boardState,  this, row, column, direction);
         }
 
         return new MovesCalcResult(validMoves, dependencies);

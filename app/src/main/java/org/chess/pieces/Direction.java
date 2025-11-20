@@ -1,6 +1,7 @@
 package org.chess.pieces;
 
 import java.util.List;
+import com.google.common.collect.BiMap;
 
 import org.chess.Move;
 import org.chess.Move.MoveType;
@@ -30,7 +31,7 @@ public enum Direction {
         columnDirection = cD;
     }
     
-    public static void checkDirection(List<Move> validMoves, List<Pos> dependencies, Piece piece, int row, int column, BiMap<Pos, Piece> boardState, Direction direction){
+    public static void checkDirection(List<Move> validMoves, List<Pos> dependencies, BiMap<Pos, Piece> boardState, Piece piece, int row, int column, Direction direction){
         int rowCounter = direction.rowDirection;
         int columnConter = direction.columnDirection;
         while(true){
@@ -51,12 +52,8 @@ public enum Direction {
                 break;
             }
         }
-        validMoves.add(new Move(piece, MoveType.SIMPLE_MOVE, pos));
-      } catch (IllegalArgumentException e) {
-        break;
       }
-    }
-  }
-
+    
+  
 }
 

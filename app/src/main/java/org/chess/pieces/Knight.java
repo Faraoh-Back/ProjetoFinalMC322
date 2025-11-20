@@ -16,62 +16,51 @@ public class Knight extends NonKing {
     super(color);
   }
 
-  public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard {
-    // Checks if piece is on the board
+public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard {
+  // Checks if piece is on the board
     Pos thisPos = boardState.inverse().get(this);
     if (thisPos == null) {
       throw new PieceNotInBoard();
     }
 
+    //This will be the MovesCalcResult atributes
+    ArrayList<Move> validMoves = new ArrayList<Move>();
+    ArrayList<Pos> dependencies = new ArrayList<Pos>();
+
+    //getting this piece's position
+    int row = thisPos.row();
+    int column = thisPos.column();
     
-    @Override
-    public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard{
-        //Checks if piece is on the board
-        Pos thisPos = boardState.inverse().get(this);
-        if(thisPos == null){
-            throw new PieceNotInBoard();
-        }
+    int[][] possibleMoves = {
+          {row + 3, column + 1},
+          {row + 3, column - 1},
+          {row - 3, column + 1},
+          {row - 3, column - 1},
+          {row + 1, column + 3},
+          {row - 1, column + 3},
+          {row + 1, column - 3},
+          {row - 1, column - 3}
+      };
 
-        //This will be the MovesCalcResult atributes
-        ArrayList<Move> validMoves = new ArrayList<Move>();
-        ArrayList<Pos> dependencies = new ArrayList<Pos>();
+      //creating a list of valid positions in the board
 
-        //getting this piece's position
-        int row = thisPos.row();
-        int column = thisPos.column();
+      //Checks if those positions would generate validMoves,
+      //then, fills validMoves and piecesBlockingMoves
+      for(int[] pos : possibleMoves){
+          try{
+              Pos tempPos = new Pos(pos[0], pos[1]);
+              dependencies.add(tempPos);
+              Piece pieceInPos = boardState.get(tempPos);
+              if(pieceInPos != null){
+                  if(pieceInPos.color != super.color){
+                      continue;
+                  }
+              }
+              validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
+          }catch(IllegalArgumentException e){}
+      }
 
-        int[][] possibleMoves = {
-            {row + 3, column + 1},
-            {row + 3, column - 1},
-            {row - 3, column + 1},
-            {row - 3, column - 1},
-            {row + 1, column + 3},
-            {row - 1, column + 3},
-            {row + 1, column - 3},
-            {row - 1, column - 3}
-        };
-
-        //creating a list of valid positions in the board
-
-        //Checks if those positions would generate validMoves,
-        //then, fills validMoves and piecesBlockingMoves
-        for(int[] pos : possibleMoves){
-            try{
-                Pos tempPos = new Pos(pos[0], pos[1]);
-                dependencies.add(tempPos);
-                Piece pieceInPos = boardState.get(tempPos);
-                if(pieceInPos != null){
-                    if(pieceInPos.color != super.color){
-                        continue;
-                    }
-                }
-                validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
-            }catch(IllegalArgumentException e){}
-        }
-
-        return new MovesCalcResult(validMoves, dependencies);
-        
-    }
-    return new MovesCalcResult(validMoves, dependencies);
+      return new MovesCalcResult(validMoves, dependencies);
+      
   }
 }
