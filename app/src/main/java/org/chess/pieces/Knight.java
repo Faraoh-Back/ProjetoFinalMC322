@@ -44,21 +44,19 @@ public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws Piece
 
       //creating a list of valid positions in the board
 
-      //Checks if those positions would generate validMoves,
-      //then, fills validMoves and piecesBlockingMoves
-      for(int[] pos : possibleMoves){
-          try{
-              Pos tempPos = new Pos(pos[0], pos[1]);
-              dependencies.add(tempPos);
-              Piece pieceInPos = boardState.get(tempPos);
-              if(pieceInPos != null){
-                  if(pieceInPos.color != super.color){
-                      continue;
-                  }
-              }
-              validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
-          }catch(IllegalArgumentException e){}
+    // Checks if those positions would generate validMoves,
+    // then, fills validMoves and piecesBlockingMoves
+    for (int[] pos : possibleMoves) {
+      try {
+        Pos tempPos = new Pos(pos[0], pos[1]);
+        dependencies.add(tempPos);
+        Piece pieceInPos = boardState.get(tempPos);
+        if (pieceInPos == null || pieceInPos.color != super.color) {
+          validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
+        }
+      } catch (IllegalArgumentException e) {
       }
+    }
 
       return new MovesCalcResult(validMoves, dependencies);
       
