@@ -2,130 +2,138 @@ package org.chess.pieces;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Predicate;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-
-import com.google.common.collect.BiMap;
+import java.util.function.Predicate;
 
 import org.chess.Color;
-import org.chess.board.History;
-import org.chess.Pos;
+import org.chess.Move;
 import org.chess.Move.MoveType;
 import org.chess.PieceNotInBoard;
-import org.chess.Move;
+import org.chess.Pos;
+
+import com.google.common.base.Function;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 public class King extends Piece {
-	public boolean castlingEnable = true;
-	public boolean inCheck = false;
-	public Piece kingSideRook;
-	public Piece queenSideRook;
-	
+    private final Rook kingSideRook;
+    private final Rook queenSideRook;
 
-	public King(Color color) {
-		super(color);
-	}
+    public King(Color color, Rook kingsideRook, Rook queensideRook) {
+        super(color);
+        this.kingSideRook = kingsideRook;
+        this.queenSideRook = queensideRook;
+    }
 
-	public static Collection<Move> calculateMoves(Collection<King> kings, BiMap<Pos, Piece> boardState, Map<Color, Predicate<Pos>> dangerMap, History gameHistory) throws PieceNotInBoard{
-		Collection<Move> validMoves = new ArrayList<Move>();
-		
-		Pos thisPos;
-		int row;
-		int column;
-		
-		//Loop to go through the kings
-		for(King king : kings){
+    public static Collection<Move> calculateMoves(Collection<King> kings, Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos,
+            Map<Color, Predicate<Pos>> getDangerMap, Predicate<Piece> hasMoves) throws PieceNotInBoard {
+        Multimap<Pos, King> simpleMoves = HashMultimap.create();
+        for (King king : kings) {
+            for (Pos pos : king.getSimpleMoves(getPiece, getPos, getDangerMap.get(king.color))) {
+                simpleMoves.put(pos, king);
+            }
+        }
+        Collection<Move> moves = new ArrayList<>();
+        Map<Pos, King> validSimpleMoves = filterIntersectingSimpleMoves(simpleMoves);
+        validSimpleMoves.forEach((pos, king) -> moves.add(new Move(king, MoveType.SIMPLE_MOVE, pos)));
+        for (King king : kings) {
+            Predicate<Pos> dangerMap = getDangerMap.get(king.color);
+            Predicate<Pos> patchedDangerMap = pos -> dangerMap.test(pos) || validSimpleMoves.get(pos) != king;
+            moves.addAll(king.getCastlingMoves(getPiece, getPos, patchedDangerMap, hasMoves));
+        }
+        return moves;
+    }
 
-			//verify if king is in the board
-			thisPos = boardState.inverse().get(king);
-			if(thisPos == null){
-				continue;
-			}
+    private Collection<Pos> getSimpleMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Predicate<Pos> dangerMap) throws PieceNotInBoard {
+            Pos thisPos = getPos.apply(this);
+            if (thisPos == null)
+                throw new PieceNotInBoard();
+            int row = thisPos.row();
+            int column = thisPos.column();
 
-			//Get king's position
-			row = thisPos.row();
-			column = thisPos.column();
+            // Normal King Move
+            int[][] possibleMoves = { 
+                { row + 1, column }, 
+                { row + 1, column + 1 }, 
+                { row, column + 1 },
+                { row - 1, column + 1 },
+                { row - 1, column },
+                { row - 1, column - 1 },
+                { row, column - 1 },
+                { row + 1, column - 1 }
+            };
+            Collection<Pos> simpleMoves = new ArrayList<>();
+            for (int[] pos : possibleMoves) {
+                try {
+                    Pos movementPos = new Pos(pos[0], pos[1]);
+                    Piece pieceInPos = getPiece.apply(movementPos);
+                    if ((pieceInPos == null || pieceInPos.color != color)
+                            && !dangerMap.test(movementPos)) {
+                        simpleMoves.add(movementPos);
+                    }
+                } catch (IllegalArgumentException e) {
+                }
+            }
+        return simpleMoves;
+    }
 
-			//Verify if king is in check
-			//TODO: verificar se esta verificação está de acordo coma lógica do programa
-			if(dangerMap.get(king.color).test(thisPos)){
-				king.inCheck = true;
-			}else{
-				king.inCheck = false;
-			}
+    private static Map<Pos, King> filterIntersectingSimpleMoves(Multimap<Pos, King> simpleMoves) {
+        Map<Pos, King> moves = new HashMap<>();
+        for (Pos pos : simpleMoves.keySet()) {
+            Collection<King> kingList = simpleMoves.get(pos);
+            if (kingList.size() == 1) {
+                for (King king : kingList) {
+                    moves.put(pos, king);
+                }
+            }
+        }
+        return moves;
+    }
 
-			//Normal King Move
-			int[][] possibleMoves = {
-				{row+1, column},
-				{row+1, column+1},
-				{row, column+1},
-				{row-1, column+1},
-				{row-1, column},
-				{row-1, column-1},
-				{row, column-1},
-				{row+1, column-1}
-			};
+    private Collection<Move> getCastlingMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Predicate<Pos> dangerMap,
+            Predicate<Piece> hasMoved) throws PieceNotInBoard {
+        if (hasMoved.test(this))
+            return null;
 
-			for(int[] pos : possibleMoves){
-				try{
-					Pos movementPos = new Pos(pos[0], pos[1]);
-					Piece pieceInPos = boardState.get(movementPos);
-					if(pieceInPos == null || pieceInPos.color != king.color){
-						//TODO: verificar se esta verificação está de acordo coma lógica do programa
-						if(!dangerMap.get(king.color).test(movementPos)){ 
-							//entraria aqui se a posição fosse segura
-							validMoves.add(new Move(king, MoveType.SIMPLE_MOVE, movementPos));
-						}
-					}
-				}catch(Exception e){}
-			}
+        Pos thisPos = getPos.apply(this);
+        if (thisPos == null)
+            throw new PieceNotInBoard();
+        int row = thisPos.row();
+        int column = thisPos.column();
 
-			//Castling
-			if(king.castlingEnable && !king.inCheck){
-				List<Move> kingMoves = gameHistory.getMovesView(king);
-				//verifies if king moved
-				if(kingMoves.isEmpty()){
-					List<Move> kingSideMoves = gameHistory.getMovesView(king.kingSideRook);
-					List<Move> queenSideMoves = gameHistory.getMovesView(king.queenSideRook);
-					//verifies if both rooks moved
-					if(!kingSideMoves.isEmpty() && !queenSideMoves.isEmpty()){
-						king.castlingEnable = false;
-						continue;
-					}
-					//TODO: improve castling verification implementation
-					if(kingSideMoves.isEmpty()){
-						//verifies poorly if there is no pieces between king and rook and if there is danger
-						Pos firstSquare = new Pos(row, column+1);
-						Pos secondSquare = new Pos(row, column+2);
-						if(boardState.get(firstSquare) == null && boardState.get(secondSquare) == null){
-							if(!dangerMap.get(king.color).test(firstSquare) && !dangerMap.get(king.color).test(secondSquare)){
-								validMoves.add(new Move(king, MoveType.KINGSIDE_CASTLING, secondSquare));
-							}
-						}
-					}
-					if(queenSideMoves.isEmpty()){
-						//verifies poorly if there is no pieces between king and rook and if there is danger
-						Pos firstSquare = new Pos(row, column-1);
-						Pos secondSquare = new Pos(row, column-2);
-						Pos thirdSquare = new Pos(row, column -3);
-						if(boardState.get(firstSquare) == null && boardState.get(secondSquare) == null && boardState.get(thirdSquare) == null){
-							if(!dangerMap.get(king.color).test(firstSquare) && !dangerMap.get(king.color).test(secondSquare) && !dangerMap.get(king.color).test(thirdSquare)){
-								validMoves.add(new Move(king, MoveType.QUEENSIDE_CASTLING, secondSquare));
-							}
-						}
-					}
-				}else{
-					king.castlingEnable = false;
-				}
-			}
+        if (dangerMap.test(thisPos))
+            return null;
 
-		}
-		return validMoves;
-	}
+        Collection<Move> moves = new ArrayList<>();
 
-	//Atributes to King his rooks, this facilitates castling implementation
-	public void setKingRooks(Rook kingSide, Rook queenSide){
-		this.kingSideRook = kingSide;
-		this.queenSideRook = queenSide;
-	}
+        if (!hasMoved.test(kingSideRook))
+            moves.add(kingsideCaslte(row, column, dangerMap, getPiece));
+
+        if (!hasMoved.test(queenSideRook))
+            moves.add(queensideCaslte(row, column, dangerMap, getPiece));
+
+        return moves;
+    }
+
+    private Move kingsideCaslte(int row, int col, Predicate<Pos> dangerMap, Function<Pos, Piece> getPiece) {
+        int i = color.queenToTheLeftOfKing ? 1 : -1;
+        Pos firstSquare = new Pos(row, col + i);
+        Pos secondSquare = new Pos(row, col + 2 * i);
+        if (getPiece.apply(firstSquare) != null || getPiece.apply(secondSquare) != null || dangerMap.test(firstSquare)
+                || dangerMap.test(secondSquare))
+            return null;
+        return new Move(this, MoveType.KINGSIDE_CASTLING, secondSquare);
+    }
+
+    private Move queensideCaslte(int row, int col, Predicate<Pos> dangerMap, Function<Pos, Piece> getPiece) {
+        int i = color.queenToTheLeftOfKing ? -1 : 1;
+        Pos firstSquare = new Pos(row, col + i);
+        Pos secondSquare = new Pos(row, col + 2 * i);
+        Pos thirdSquare = new Pos(row, col + 3 * i);
+        if (getPiece.apply(firstSquare) != null || getPiece.apply(secondSquare) != null
+                || getPiece.apply(thirdSquare) != null || dangerMap.test(firstSquare) || dangerMap.test(secondSquare))
+            return null;
+        return new Move(this, MoveType.QUEENSIDE_CASTLING, secondSquare);
+    }
 }

@@ -1,10 +1,16 @@
 package org.chess;
 
 public enum Color {
-  GREEN,
-  RED,
-  YELLOW,
-  BLUE;
+  GREEN(false),
+  RED(false),
+  YELLOW(true),
+  BLUE(true);
+
+  public final boolean queenToTheLeftOfKing;
+
+  private Color(boolean queenToTheLeftOfKing) {
+    this.queenToTheLeftOfKing = queenToTheLeftOfKing;
+  }
 
   // returns the color in the front
   public Color getFrontColor() {
@@ -15,7 +21,6 @@ public enum Color {
       case BLUE -> YELLOW;
     };
   }
-
 
   // returns the color to the left
   public Color getLeftColor() {
