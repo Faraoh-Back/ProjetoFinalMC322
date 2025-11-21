@@ -1,27 +1,25 @@
 package org.chess.pieces;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Function;
 
 import org.chess.Color;
-
-import com.google.common.collect.BiMap;
 
 import org.chess.Move;
 import org.chess.PieceNotInBoard;
 import org.chess.Pos;
 import org.chess.Move.MoveType;
-import org.chess.board.History;
 
 public class Pawn extends Piece {
   public Pawn(Color color) {
     super(color);
   }
 
-  public MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState, History gameHistory) throws PieceNotInBoard {
+  public MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Move lastMove)
+      throws PieceNotInBoard {
 
     // Checks if piece is on the board
-    Pos thisPos = boardState.inverse().get(this);
+    Pos thisPos = getPos.apply(this);
     if (thisPos == null) {
       throw new PieceNotInBoard();
     }
@@ -35,56 +33,67 @@ public class Pawn extends Piece {
     int column = thisPos.column();
 
     // En-passant check
-    enPassantMove(boardState, gameHistory, validMoves, dependencies, row, column);
+    enPassantMove(getPiece, lastMove, validMoves, dependencies, row, column);
 
     // Double-step check
-    doubleMove(boardState, validMoves, dependencies, row, column);
+    doubleMove(getPiece, validMoves, dependencies, row, column);
 
     // Simple Move check
-    simpleMove(boardState, validMoves, dependencies, row, column);
+    simpleMove(getPiece, validMoves, dependencies, row, column);
 
     // Left Attack-Move check
-    leftMove(boardState, validMoves, dependencies, row, column);
+    leftMove(getPiece, validMoves, dependencies, row, column);
 
     // Right Attack-Move check
-    rightMove(boardState, validMoves, dependencies, row, column);
+    rightMove(getPiece, validMoves, dependencies, row, column);
 
     return new MovesCalcResult(validMoves, dependencies);
   }
 
-  private void enPassantMove(BiMap<Pos, Piece> boardState, History gameHistory, ArrayList<Move> validMoves,
+  private void enPassantMove(Function<Pos, Piece> getPiece, Move lastMove, ArrayList<Move> validMoves,
       ArrayList<Pos> dependencies, int row, int column) {
 
-    List<Move> LastMoves = gameHistory.getMovesView();
-    Move lastMove = LastMoves.get(LastMoves.size() - 1);
-
     // checks if last move was a double pawn move
-    if (lastMove.type() == MoveType.PAWN_DOUBLE) {
-      Piece movedPiece = lastMove.piece();
-      Pos tempPos;
+    if (lastMove.type() != MoveType.PAWN_DOUBLE)
+      return;
+    Piece movedPiece = lastMove.piece();
 
-      // checks if the moved piece is the color in the front
-      if (super.color.getFrontColor() == movedPiece.color) {
-        // checking right-side en-passant
-        tempPos = new Pos(row, column + 1);
-        if (boardState.get(tempPos) == movedPiece) {
-          validMoves.add(new Move(this, MoveType.EN_PASSANT, new Pos(row - 1, column + 1)));
+    // checks if the moved piece is the color in the front
+    if (color.getFrontColor() == movedPiece.color) {
+      // checking right-side en-passant
+      try {
+        Pos rightPos = new Pos(row, column + 1);
+        if (getPiece.apply(rightPos) == movedPiece) {
+          Pos movePos = new Pos(row - 1, column + 1);
+          if (getPiece.apply(movePos) == null)
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
         }
+      } catch (IllegalArgumentException e) {
+      }
 
-        // checking left-side en-passant
-        tempPos = new Pos(row, column - 1);
-        if (boardState.get(tempPos) == movedPiece) {
-          validMoves.add(new Move(this, MoveType.EN_PASSANT, new Pos(row - 1, column - 1)));
+      // checking left-side en-passant
+      try {
+        Pos rightPos = new Pos(row, column - 1);
+        if (getPiece.apply(rightPos) == movedPiece) {
+          Pos movePos = new Pos(row - 1, column - 1);
+          if (getPiece.apply(movePos) == null)
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
         }
-        // checking en-passant on the side colors
-      } else {
-        tempPos = new Pos(row - 1, column);
-        if (boardState.get(tempPos) == movedPiece) {
-          if (super.color.getLeftColor() == movedPiece.color) {
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, new Pos(row - 1, column - 1)));
-          } else {
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, new Pos(row - 1, column + 1)));
-          }
+      } catch (IllegalArgumentException e) {
+      }
+
+      // checking en-passant on the side colors
+    } else {
+      Pos frontPos = new Pos(row - 1, column);
+      if (getPiece.apply(frontPos) == movedPiece) {
+        if (color.getLeftColor() == movedPiece.color) { // checking left-side en-passant
+          Pos movePos = new Pos(row - 1, column - 1);
+          if (getPiece.apply(movePos) == null)
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
+        } else if (color.getRightColor() == movedPiece.color) { // checking right-side en-passant
+          Pos movePos = new Pos(row - 1, column + 1);
+          if (getPiece.apply(movePos) == null)
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
         }
       }
     }
@@ -93,23 +102,23 @@ public class Pawn extends Piece {
     dependencies.add(new Pos(row, column - 1));
   }
 
-  private void doubleMove(BiMap<Pos, Piece> boardState, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
+  private void doubleMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
       int row, int column) {
     if (row == 13) {
       Pos movementPos = new Pos(row - 2, column);
       dependencies.add(movementPos);
-      if (boardState.get(movementPos) == null) {
+      if (getPiece.apply(movementPos) == null) {
         validMoves.add(new Move(this, MoveType.PAWN_DOUBLE, movementPos));
       }
     }
   }
 
-  private void rightMove(BiMap<Pos, Piece> boardState, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
+  private void rightMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
       int row, int column) {
     try {
       Pos movementPos = new Pos(row - 1, column + 1);
       dependencies.add(movementPos);
-      Piece pieceInPos = boardState.get(movementPos);
+      Piece pieceInPos = getPiece.apply(movementPos);
 
       if (pieceInPos != null && pieceInPos.color != super.color) {
         if (row == 2) {
@@ -125,12 +134,12 @@ public class Pawn extends Piece {
     }
   }
 
-  private void leftMove(BiMap<Pos, Piece> boardState, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
+  private void leftMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
       int row, int column) {
     try {
       Pos movementPos = new Pos(row - 1, column - 1);
       dependencies.add(movementPos);
-      Piece pieceInPos = boardState.get(movementPos);
+      Piece pieceInPos = getPiece.apply(movementPos);
 
       if (pieceInPos != null && pieceInPos.color != super.color) {
         if (row == 2) {
@@ -146,11 +155,11 @@ public class Pawn extends Piece {
     }
   }
 
-  private void simpleMove(BiMap<Pos, Piece> boardState, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
+  private void simpleMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
       int row, int column) {
     try {
       Pos movementPos = new Pos(row - 1, column);
-      Piece pieceInPos = boardState.get(movementPos);
+      Piece pieceInPos = getPiece.apply(movementPos);
       dependencies.add(movementPos);
       if (pieceInPos == null) {
         if (row == 2) {
