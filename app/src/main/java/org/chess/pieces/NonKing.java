@@ -1,10 +1,10 @@
 package org.chess.pieces;
 
+import java.util.function.Function;
+
 import org.chess.Color;
 import org.chess.PieceNotInBoard;
 import org.chess.Pos;
-
-import com.google.common.collect.BiMap;
 
 public abstract class NonKing extends Piece {
 
@@ -12,5 +12,5 @@ public abstract class NonKing extends Piece {
     super(color);
   }
 
-  public abstract MovesCalcResult calculateMoves(BiMap<Pos, Piece> boardState) throws PieceNotInBoard;
+  public abstract MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos) throws PieceNotInBoard;
 }

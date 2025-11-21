@@ -1,7 +1,7 @@
 package org.chess.pieces;
 
 import java.util.List;
-import com.google.common.collect.BiMap;
+import java.util.function.Function;
 
 import org.chess.Move;
 import org.chess.Move.MoveType;
@@ -31,7 +31,7 @@ public enum Direction {
         columnDirection = cD;
     }
     
-    public void checkDirection(List<Move> validMoves, List<Pos> dependencies, BiMap<Pos, Piece> boardState, Piece piece, int row, int column){
+    public void checkDirection(List<Move> validMoves, List<Pos> dependencies, Function<Pos, Piece> getPiece, Piece piece, int row, int column){
         int rowCounter = rowDirection;
         int columnConter = columnDirection;
         while(true){
@@ -40,7 +40,7 @@ public enum Direction {
                 dependencies.add(pos);
                 rowCounter += rowDirection;
                 columnConter += columnDirection;
-                Piece pieceInPos = boardState.get(pos);
+                Piece pieceInPos = getPiece.apply(pos);
                 if(pieceInPos != null){
                     if(pieceInPos.color != piece.color){
                         validMoves.add(new Move(piece, MoveType.SIMPLE_MOVE, pos));
