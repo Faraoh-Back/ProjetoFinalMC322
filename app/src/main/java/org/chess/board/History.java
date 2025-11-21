@@ -36,6 +36,10 @@ public class History {
 	// TODO Auto-generated method stub
 	throw new UnsupportedOperationException("Unimplemented method 'getLastMove'");
   }
-  
+
+  public boolean movedBefore(Piece piece) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'movedBefore'");
+  }
   
 }

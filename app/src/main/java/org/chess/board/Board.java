@@ -154,6 +154,10 @@ class Board {
     return color -> pos -> moves.isDangerous(pos, color);
   }
 
+  private Predicate<Piece> makeMovedBefore() {
+    return piece -> history.movedBefore(piece);
+  }
+
   // ###########################################################################
   // Private mutating operations
   // ###########################################################################
@@ -306,7 +310,7 @@ class Board {
       moves.removeAll(king);
     }
     try {
-      King.calculateMoves(kings, makeGetPiece(), makeGetPos(), makeDangerMap()).forEach(moves::add);
+      King.calculateMoves(kings, makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore() ).forEach(moves::add);
     } catch (PieceNotInBoard e) {
       throw new IllegalStateException("Tried to reevaluate piece that's not on the board");
     }

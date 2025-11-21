@@ -21,12 +21,15 @@ public class Player{
     this.color = color;
 
     for (PieceType pieceType: PieceType.values()) {
+      Rook kingsideRook = new Rook(color);
+      Rook queensideRook = new Rook(color);
       pieces.put(pieceType, switch (pieceType) {
         case QUEENSIDE_BISHOP, KINGSIDE_BISHOP -> new Bishop(color);
-        case QUEENSIDE_ROOK, KINGSIDE_ROOK -> new Rook(color);
+        case QUEENSIDE_ROOK -> queensideRook;
+        case KINGSIDE_ROOK -> kingsideRook;
         case QUEENSIDE_KNIGHT, KINGSIDE_KNIGHT -> new Knight(color);
         case QUEEN -> new Queen(color);
-        case KING -> new King(color);
+        case KING -> new King(color, kingsideRook, queensideRook);
         default -> new Pawn(color);
       });
     }

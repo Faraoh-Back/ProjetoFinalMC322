@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.chess.Color;
@@ -12,7 +13,6 @@ import org.chess.Move.MoveType;
 import org.chess.PieceNotInBoard;
 import org.chess.Pos;
 
-import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
@@ -27,10 +27,10 @@ public class King extends Piece {
     }
 
     public static Collection<Move> calculateMoves(Collection<King> kings, Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos,
-            Map<Color, Predicate<Pos>> getDangerMap, Predicate<Piece> hasMoves) throws PieceNotInBoard {
+            Function<Color, Predicate<Pos>> getDangerMap, Predicate<Piece> movedBefore) throws PieceNotInBoard {
         Multimap<Pos, King> simpleMoves = HashMultimap.create();
         for (King king : kings) {
-            for (Pos pos : king.getSimpleMoves(getPiece, getPos, getDangerMap.get(king.color))) {
+            for (Pos pos : king.getSimpleMoves(getPiece, getPos, getDangerMap.apply(king.color))) {
                 simpleMoves.put(pos, king);
             }
         }
@@ -38,9 +38,9 @@ public class King extends Piece {
         Map<Pos, King> validSimpleMoves = filterIntersectingSimpleMoves(simpleMoves);
         validSimpleMoves.forEach((pos, king) -> moves.add(new Move(king, MoveType.SIMPLE_MOVE, pos)));
         for (King king : kings) {
-            Predicate<Pos> dangerMap = getDangerMap.get(king.color);
+            Predicate<Pos> dangerMap = getDangerMap.apply(king.color);
             Predicate<Pos> patchedDangerMap = pos -> dangerMap.test(pos) || validSimpleMoves.get(pos) != king;
-            moves.addAll(king.getCastlingMoves(getPiece, getPos, patchedDangerMap, hasMoves));
+            moves.addAll(king.getCastlingMoves(getPiece, getPos, patchedDangerMap, movedBefore));
         }
         return moves;
     }
@@ -92,8 +92,8 @@ public class King extends Piece {
     }
 
     private Collection<Move> getCastlingMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Predicate<Pos> dangerMap,
-            Predicate<Piece> hasMoved) throws PieceNotInBoard {
-        if (hasMoved.test(this))
+            Predicate<Piece> movedBefore) throws PieceNotInBoard {
+        if (movedBefore.test(this))
             return null;
 
         Pos thisPos = getPos.apply(this);
@@ -107,10 +107,10 @@ public class King extends Piece {
 
         Collection<Move> moves = new ArrayList<>();
 
-        if (!hasMoved.test(kingSideRook))
+        if (!movedBefore.test(kingSideRook))
             moves.add(kingsideCaslte(row, column, dangerMap, getPiece));
 
-        if (!hasMoved.test(queenSideRook))
+        if (!movedBefore.test(queenSideRook))
             moves.add(queensideCaslte(row, column, dangerMap, getPiece));
 
         return moves;
