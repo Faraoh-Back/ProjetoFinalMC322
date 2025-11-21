@@ -2,7 +2,6 @@ package org.chess.board;
 
 import java.util.Collection;
 
-import org.chess.pieces.NonKing;
 import org.chess.pieces.Piece;
 import org.chess.Pos;
 
@@ -24,12 +23,12 @@ class Dependencies {
   Dependencies() {
   }
 
-  public void add(NonKing piece, Pos pos) {
+  public void add(Piece piece, Pos pos) {
     piecePosMap.put(piece, pos);
     posPieceMap.put(pos, piece);
   }
 
-  public void addAll(NonKing piece, Collection<Pos> dependencies) {
+  public void addAll(Piece piece, Collection<Pos> dependencies) {
     piecePosMap.putAll(piece, dependencies);
     for (Pos pos : dependencies) {
       posPieceMap.put(pos, piece);

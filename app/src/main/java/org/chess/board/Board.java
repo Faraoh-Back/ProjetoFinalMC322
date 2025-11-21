@@ -18,6 +18,7 @@ import org.chess.Pos;
 import org.chess.pieces.Bishop;
 import org.chess.pieces.King;
 import org.chess.pieces.NonKing;
+import org.chess.pieces.Pawn;
 import org.chess.pieces.Piece;
 
 import com.google.common.collect.BiMap;
@@ -263,6 +264,8 @@ class Board {
     for (Piece piece : pieces) {
       if (piece instanceof NonKing nonKing) {
         reevaluate(nonKing);
+      } else if (piece instanceof Pawn pawn) {
+        reevaluate(pawn);
       }
     }
     // Since kings can't checkmate themselves, they need to know every move from
@@ -304,13 +307,37 @@ class Board {
     }
   }
 
+  private void reevaluate(Pawn piece) {
+    moves.removeAll(piece);
+    dependencies.removeAll(piece);
+    try {
+      var calcResult = piece.calculateMoves(
+          makeGetPiece(piece.color),
+          makeGetPos(piece.color),
+          history.getLastMove());
+
+      for (Pos pos : calcResult.dependencies()) {
+        dependencies.add(piece, pos.fromPerspective(piece.color));
+      }
+
+      for (Move m : calcResult.moves()) {
+        moves.add(new Move(
+            m.piece(),
+            m.type(),
+            m.toPos().fromPerspective(piece.color)));
+      }
+    } catch (PieceNotInBoard e) {
+      throw new IllegalStateException("Tried to reevaluate piece that's not on the board");
+    }
+  }
+
   private void reevaluateKings() {
     var kings = kingsMap.values();
     for (King king : kings) {
       moves.removeAll(king);
     }
     try {
-      King.calculateMoves(kings, makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore() ).forEach(moves::add);
+      King.calculateMoves(kings, makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore()).forEach(moves::add);
     } catch (PieceNotInBoard e) {
       throw new IllegalStateException("Tried to reevaluate piece that's not on the board");
     }
