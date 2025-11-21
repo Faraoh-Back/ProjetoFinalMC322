@@ -33,7 +33,7 @@ public class Pawn extends Piece{
         ArrayList<Move> validMoves = new ArrayList<Move>();
         ArrayList<Pos> dependencies = new ArrayList<Pos>();
 
-        //getting this piece's positionu
+        //getting this piece's position
         int row = thisPos.row();
         int column = thisPos.column();
 

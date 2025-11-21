@@ -26,9 +26,8 @@ public class King extends Piece {
 		super(color);
 	}
 
-	public static MovesCalcResult calculateMoves(Collection<King> kings, BiMap<Pos, Piece> boardState, Map<Color, Predicate<Pos>> dangerMap, History gameHistory) throws PieceNotInBoard{
+	public static Collection<Move> calculateMoves(Collection<King> kings, BiMap<Pos, Piece> boardState, Map<Color, Predicate<Pos>> dangerMap, History gameHistory) throws PieceNotInBoard{
 		ArrayList<Move> validMoves = new ArrayList<Move>();
-		ArrayList<Pos> dependencies = new ArrayList<Pos>();
 		
 		Pos thisPos;
 		int row;
@@ -63,14 +62,11 @@ public class King extends Piece {
 			for(int[] pos : possibleMoves){
 				try{
 					Pos movementPos = new Pos(pos[0], pos[1]);
-					dependencies.add(movementPos);
 					Piece pieceInPos = boardState.get(movementPos);
 					if(pieceInPos == null || pieceInPos.color != king.color){
 						//TODO: verificar se esta verificação está de acordo coma lógica do programa
-						if(dangerMap.get(king.color).test(movementPos)){ 
-							//Entraria aqui se a posição de movimento fosse perigosa
-							//TODO: achar um jeito de colocar a posição da peça que ameaça esta posição em dependencies
-						}else{
+						if(!dangerMap.get(king.color).test(movementPos)){ 
+							//entraria aqui se a posição fosse segura
 							validMoves.add(new Move(king, MoveType.SIMPLE_MOVE, movementPos));
 						}
 					}
@@ -89,7 +85,7 @@ public class King extends Piece {
 						king.castlingEnable = false;
 						continue;
 					}
-					//TODO: improve castling verification implementation and find a way to add the positions of danger to dependencies
+					//TODO: improve castling verification implementation
 					if(!kingSideMoves.isEmpty()){
 						//verifies poorly if there is no pieces between king and rook and if there is danger
 						Pos firstSquare = new Pos(row, column+1);
@@ -117,12 +113,7 @@ public class King extends Piece {
 			}
 
 		}
-
-		
-		
-
-
-		return new MovesCalcResult(validMoves, dependencies);
+		return validMoves;
 	}
 
 	//Atributes to King his rooks, this facilitates castling implementation
