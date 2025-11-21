@@ -38,6 +38,8 @@ public class Clock {
 
   public String formatTimeLeft() {
     // format getTimeLeft, which is nanoseconds, into string.
+    // TODO
+		throw new UnsupportedOperationException("Unimplemented method 'formatTimeLeft'");
   }
 
 }

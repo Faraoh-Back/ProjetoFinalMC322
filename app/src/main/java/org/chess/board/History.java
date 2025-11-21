@@ -1,7 +1,7 @@
 package org.chess.board;
 
 import org.chess.Move;
-import org.chess.Piece;
+import org.chess.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +31,15 @@ public class History {
   public List<Move> getMovesView() {
     return Collections.unmodifiableList(gameHistory);
   }
-  
+
+  public Move getLastMove() {
+	// TODO Auto-generated method stub
+	throw new UnsupportedOperationException("Unimplemented method 'getLastMove'");
+  }
+
+  public boolean movedBefore(Piece piece) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'movedBefore'");
+  }
   
 }

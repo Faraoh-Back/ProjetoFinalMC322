@@ -23,4 +23,9 @@
 hs_err_pid*
 replay_pid*
 
-.gradle
+.gradle/
+
+# lsp configs
+**/.project
+**/.settings/
+**/.classpath

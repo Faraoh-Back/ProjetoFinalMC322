@@ -5,7 +5,7 @@ import org.chess.pieces.Piece;
 /**
  * Move
  */
-public record Move(Piece piece, MoveType type, Pos movingTo) {
+public record Move(Piece piece, MoveType type, Pos toPos) {
   public enum MoveType {
     EN_PASSANT,
     PAWN_DOUBLE,
