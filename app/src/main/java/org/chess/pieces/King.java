@@ -27,15 +27,22 @@ public class King extends Piece {
 	}
 
 	public static Collection<Move> calculateMoves(Collection<King> kings, BiMap<Pos, Piece> boardState, Map<Color, Predicate<Pos>> dangerMap, History gameHistory) throws PieceNotInBoard{
-		ArrayList<Move> validMoves = new ArrayList<Move>();
+		Collection<Move> validMoves = new ArrayList<Move>();
 		
 		Pos thisPos;
 		int row;
 		int column;
-
 		
+		//Loop to go through the kings
 		for(King king : kings){
+
+			//verify if king is in the board
 			thisPos = boardState.inverse().get(king);
+			if(thisPos == null){
+				continue;
+			}
+
+			//Get king's position
 			row = thisPos.row();
 			column = thisPos.column();
 
@@ -81,12 +88,12 @@ public class King extends Piece {
 					List<Move> kingSideMoves = gameHistory.getMovesView(king.kingSideRook);
 					List<Move> queenSideMoves = gameHistory.getMovesView(king.queenSideRook);
 					//verifies if both rooks moved
-					if(kingSideMoves.isEmpty() && queenSideMoves.isEmpty()){
+					if(!kingSideMoves.isEmpty() && !queenSideMoves.isEmpty()){
 						king.castlingEnable = false;
 						continue;
 					}
 					//TODO: improve castling verification implementation
-					if(!kingSideMoves.isEmpty()){
+					if(kingSideMoves.isEmpty()){
 						//verifies poorly if there is no pieces between king and rook and if there is danger
 						Pos firstSquare = new Pos(row, column+1);
 						Pos secondSquare = new Pos(row, column+2);
@@ -96,7 +103,7 @@ public class King extends Piece {
 							}
 						}
 					}
-					if(!queenSideMoves.isEmpty()){
+					if(queenSideMoves.isEmpty()){
 						//verifies poorly if there is no pieces between king and rook and if there is danger
 						Pos firstSquare = new Pos(row, column-1);
 						Pos secondSquare = new Pos(row, column-2);
