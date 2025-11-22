@@ -16,7 +16,16 @@ public class History {
   }
 
   public void addMove(Move move) {
-    // TODO    
+    // TODO
+    // verifiicar se movimento eh null
+    gameHistory.add(move); // Adiciona movimento ao historico
+    // Adicao do do ultimo movimento (push back)
+    Piece p = move.piece();
+    List<Move> piece_moves = pieceWiseHistory.get(p);
+    piece_moves.add(move);
+
+
+    
   }
 
   public List<Move> getMovesView(Piece piece) {
@@ -31,15 +40,26 @@ public class History {
   public List<Move> getMovesView() {
     return Collections.unmodifiableList(gameHistory);
   }
+  /**
+  * Retorna uma visão imutável do histórico completo do jogo.
+  * 
+  * @return lista imutável de todos os movimentos realizados no jogo
+  */
 
   public Move getLastMove() {
-	// TODO Auto-generated method stub
-	throw new UnsupportedOperationException("Unimplemented method 'getLastMove'");
+    if (gameHistory.isEmpty()){
+      return null;
+
+    }
+    return gameHistory.get(gameHistory.size() - 1); // Retorna ultimo movimento realizado no jogo
   }
 
   public boolean movedBefore(Piece piece) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'movedBefore'");
+    List<Move> lista_moves = pieceWiseHistory.get(piece);
+    if (lista_moves.isEmpty()){
+      return false;
+    }
+    return true;
   }
   
 }
