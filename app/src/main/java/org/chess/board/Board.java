@@ -27,7 +27,7 @@ import com.google.common.collect.HashBiMap;
 /**
  * Manages the relation between each piece and its position.
  */
-class Board {
+public class Board { // verificar se precisa ser publica
   // ###########################################################################
   // Data structures
   // ###########################################################################
@@ -131,7 +131,7 @@ class Board {
     return boardState.inverse().get(piece);
   }
 
-  private Piece getPiece(Pos pos) {
+  public Piece getPiece(Pos pos) {
     return boardState.get(pos);
   }
 
@@ -158,6 +158,7 @@ class Board {
   private Predicate<Piece> makeMovedBefore() {
     return piece -> history.movedBefore(piece);
   }
+
 
   // ###########################################################################
   // Private mutating operations
