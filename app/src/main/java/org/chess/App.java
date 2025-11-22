@@ -1,11 +1,11 @@
 package org.chess;
 
-import org.chess.board.*;
-import java.util.List;
+import org.chess.board.Board;
+import org.chess.pieces.Piece;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.EnumMap;
-import org.chess.pieces.*;
+
 /**
  * Classe principal do jogo de xadrez 4 jogadores.
  * 
@@ -19,163 +19,122 @@ import org.chess.pieces.*;
  */
 public class App {
     private Board board;
+    private Map<Color, Player> players;
     private Color currentTurn;
     private boolean gameOver;
-    
+
     public App() {
+        initializeGame();
     }
-    
+
+    /**
+     * Inicializa o jogo: cria jogadores, posiciona peças e cria o tabuleiro.
+     */
+    private void initializeGame() {
+        // Tempo padrão: 10 minutos por jogador (em nanosegundos)
+        long defaultTime = 10L * 60L * 1000000000L;
+
+        // Criar estado inicial do tabuleiro
+        Map<Pos, Piece> initialState = new HashMap<>();
+        players = new HashMap<>();
+
+        // Criar cada jogador e posicionar suas peças
+        for (Color color : Color.values()) {
+            Clock clock = new Clock(defaultTime);
+            Player player = new Player(clock, color);
+            players.put(color, player);
+
+            // Posicionar cada peça do jogador no tabuleiro
+            for (PieceType pieceType : PieceType.values()) {
+                Pos pos = pieceType.initialPos(color);
+                Piece piece = player.pieces.get(pieceType);
+                initialState.put(pos, piece);
+            }
+        }
+
+        // Criar o tabuleiro com o estado inicial
+        board = new Board(initialState);
+
+        // Verde começa
+        currentTurn = Color.GREEN;
+        gameOver = false;
+    }
+
     /**
      * Obtém a cor do jogador atual.
      */
     public Color getCurrentTurn() {
         return currentTurn;
     }
-    
+
     /**
      * Verifica se o jogo acabou.
      */
     public boolean isGameOver() {
         return gameOver;
     }
-    
+
+
     /**
-     * Obtém o tabuleiro atual.
-     */
-    public Board getBoard() {
-        return board;
-    }
-    
-    
-    /**
-     * Executa um movimento no tabuleiro.
+     * Obtém todos os movimentos possíveis de uma peça em determinada posição.
      * 
-     * @param fromRow linha de origem
-     * @param fromCol coluna de origem
-     * @param toRow linha de destino
-     * @param toCol coluna de destino
-     * @return true se o movimento foi executado com sucesso, false caso contrário
-     * @throws IllegalArgumentException se as posições forem inválidas
-     * @throws IllegalStateException se o jogo já acabou
+     * @param row linha da peça
+     * @param col coluna da peça
+     * @return lista de movimentos possíveis, ou null se não houver peça
      */
-    public boolean executeMove(int fromRow, int fromCol, int toRow, int toCol) {
-        if (gameOver) {
-            throw new IllegalStateException("O jogo já acabou");
-        }
-        
-        Pos fromPos = new Pos(fromRow, fromCol);
-        Pos toPos = new Pos(toRow, toCol);
-        Piece piece = board.getPiece(fromPos);
-        if (piece == null) {
-            return false; // Nenhuma peça na posição de origem
-        }
-        
-        if (piece.color != currentTurn) {
-            return false; 
-        }
-        
-        // Procurar movimento válido
-        List<Move> possibleMoves = board.history.getMovesView(piece);
-        Move selectedMove = null;
-        
-        for (Move move : possibleMoves) {
-            if (move.toPos().equals(toPos)) {
-                selectedMove = move;
-                break;
+    public java.util.Collection<Move> getPossibleMoves(int row, int col) {
+        try {
+            Pos pos = new Pos(row, col);
+            Piece piece = board.getPiece(pos);
+            if (piece == null) {
+                return null;
             }
+            return board.getReadonlyMoves(piece);
+        } catch (IllegalArgumentException e) {
+            return null;
         }
-        
-        if (selectedMove == null) {
-            return false; // Movimento inválido
-        }
-        
-        // Executar movimento
-        board.doMove(selectedMove);
-        
-        // Avançar turno
-        currentTurn = getNextTurn();
-        
-        
-        return true;
     }
-    
-    
-    
+
+    public Player getPlayer(Color color) {
+        return players.get(color);
+    }
+
     /**
      * Obtém o histórico completo de movimentos do jogo.
-     * 
-     * @return lista de movimentos realizados
      */
-    public List<Move> getGameHistory() {
+    public java.util.List<Move> getGameHistory() {
         return board.history.getMovesView();
     }
-    
-    /**
-     * Obtém o histórico de movimentos de uma peça específica.
-     * 
-     * @param piece a peça
-     * @return lista de movimentos da peça
-     */
-    public List<Move> getPieceHistory(Piece piece) {
-        return board.history.getMovesView(piece);
-    }
-    
-    
-    /**
-     * Obtém o último movimento realizado no jogo.
-     * 
-     * @return o último movimento, ou null se nenhum movimento foi feito
-     */
-    public Move getLastMove() {
-        return board.history.getLastMove();
-    }
-    
+
     /**
      * Calcula o próximo turno na rotação.
-     * Ordem: Verde → Vermelho → Amarelo → Azul → Verde
+     * Ordem: Verde → Amarelo → Vermelho → Azul → Verde
      */
     private Color getNextTurn() {
         return switch (currentTurn) {
-            // Verde, Amarelo, Vermelho, Azul
             case GREEN -> Color.YELLOW;
-            case RED -> Color.BLUE;
             case YELLOW -> Color.RED;
+            case RED -> Color.BLUE;
             case BLUE -> Color.GREEN;
         };
     }
-    
+
     /**
      * Reinicia o jogo com um novo tabuleiro.
      */
     public void resetGame() {
-        // this.board = new Board();
-        // Resetar initialState
-        this.currentTurn = Color.GREEN;
-        this.gameOver = false;
+        initializeGame();
     }
+
+
 
     public static void main(String[] args) {
-        // Ponto de entrada - frontend irá instanciar App e usar seus métodos
-
-        Map<Pos, Piece> initialState = new HashMap<>();
-        
-        Map<Color, Player> players = new EnumMap<>(Color.class);
-        Clock clock = new Clock(100000);
-        for (Color color : Color.values()) {
-          Player player = new Player(clock,  color);
-          for (PieceType pieceType : PieceType.values()) {
-            initialState.put(pieceType.initialPos(color), player.pieces.get(pieceType));
-          }
-          players.put(color, player);
-        }
-      
-
-        Board tmp = new Board(initialState);
+        // Exemplo de uso
         App app = new App();
         
-        // List<Move> moves = app.getPossibleMoves(13, 5);
-        // boolean success = app.executeMove(13, 5, 11, 5);
-        // Color turn = app.getCurrentTurn();
+        // - app.getPossibleMoves(13, 5) para ver movimentos
+        // - app.executeMove(13, 5, 11, 5) para mover
+        // - app.getCurrentTurn() para saber de quem é a vez
+        // - app.getGameState() para obter estado completo
     }
 }
-  
