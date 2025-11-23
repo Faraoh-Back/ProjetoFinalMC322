@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess 4 Fun - Xadrez para 4 Jogadores</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-4 shadow-lg">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold text-center">♔ Chess 4 Fun ♔</h1>
+            <p class="text-center text-blue-200 mt-2">Xadrez para 4 Jogadores</p>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <div class="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+        
+        <!-- Game Board -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">Tabuleiro</h2>
+                    <div id="current-turn" class="px-4 py-2 rounded-lg font-bold"
+                         hx-get="/api/game/turn"
+                         hx-trigger="load, every 2s">
+                        Carregando...
+                    </div>
+                </div>
+                
+                <!-- Chess Board -->
+                <div id="chess-board" class="chess-board mx-auto"
+                     hx-get="/api/board/state"
+                     hx-trigger="load, every 3s">
+                    Carregando tabuleiro...
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar with Game Info -->
+        <div class="lg:col-span-1 space-y-4">
+            
+            <!-- Players Status -->
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <h3 class="text-lg font-semibold mb-3">Jogadores</h3>
+                <div id="players-status" 
+                     hx-get="/api/players/status"
+                     hx-trigger="load, every 3s">
+                    Carregando jogadores...
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <h3 class="text-lg font-semibold mb-3">Controles</h3>
+                <div class="space-y-2">
+                    <button 
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                        hx-post="/api/game/new"
+                        hx-target="#game-message"
+                        hx-swap="innerHTML">
+                        Novo Jogo
+                    </button>
+                    
+                    <button 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        hx-get="/api/game/reset"
+                        hx-target="#game-message"
+                        hx-swap="innerHTML">
+                        Reiniciar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game History -->
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <h3 class="text-lg font-semibold mb-3">Histórico</h3>
+                <div id="game-history" class="max-h-64 overflow-y-auto text-sm"
+                     hx-get="/api/game/history"
+                     hx-trigger="load, every 5s">
+                    Carregando histórico...
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="game-message" class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded hidden">
+                <!-- HTMX will update this area -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Move Modal -->
+    <div id="move-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+                <h3 class="text-lg font-semibold mb-4">Selecione o movimento</h3>
+                <div id="possible-moves" class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                    <!-- Possible moves will be populated here -->
+                </div>
+                <button 
+                    class="mt-4 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                    onclick="closeMoveModal()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/chess-game.js"></script>
+    <script src="js/htmx-setup.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9a33628a19c62d10","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.9.1","token":"e72945439c264b3b85d2e3b689102d27"}' crossorigin="anonymous"></script>
+</body>
+</html>

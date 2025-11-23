@@ -40,7 +40,10 @@ public class King extends Piece {
         for (King king : kings) {
             Predicate<Pos> dangerMap = getDangerMap.apply(king.color);
             Predicate<Pos> patchedDangerMap = pos -> dangerMap.test(pos) || validSimpleMoves.get(pos) != king;
-            moves.addAll(king.getCastlingMoves(getPiece, getPos, patchedDangerMap, movedBefore));
+            Collection<Move> castlingMoves = king.getCastlingMoves(getPiece, getPos, patchedDangerMap, movedBefore);
+            if (castlingMoves != null) {
+                moves.addAll(castlingMoves);
+            }
         }
         return moves;
     }
@@ -93,7 +96,7 @@ public class King extends Piece {
 
     private Collection<Move> getCastlingMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Predicate<Pos> dangerMap,
             Predicate<Piece> movedBefore) throws PieceNotInBoard {
-        if (movedBefore.test(this))
+        if (movedBefore != null && movedBefore.test(this))
             return null;
 
         Pos thisPos = getPos.apply(this);
@@ -107,10 +110,10 @@ public class King extends Piece {
 
         Collection<Move> moves = new ArrayList<>();
 
-        if (!movedBefore.test(kingSideRook))
+        if (movedBefore == null || !movedBefore.test(kingSideRook))
             moves.add(kingsideCaslte(row, column, dangerMap, getPiece));
 
-        if (!movedBefore.test(queenSideRook))
+        if (movedBefore == null || !movedBefore.test(queenSideRook))
             moves.add(queensideCaslte(row, column, dangerMap, getPiece));
 
         return moves;

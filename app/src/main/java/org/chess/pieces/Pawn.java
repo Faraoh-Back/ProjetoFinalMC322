@@ -54,7 +54,7 @@ public class Pawn extends Piece {
       ArrayList<Pos> dependencies, int row, int column) {
 
     // checks if last move was a double pawn move
-    if (lastMove.type() != MoveType.PAWN_DOUBLE)
+    if (lastMove == null || lastMove.type() != MoveType.PAWN_DOUBLE)
       return;
     Piece movedPiece = lastMove.piece();
 

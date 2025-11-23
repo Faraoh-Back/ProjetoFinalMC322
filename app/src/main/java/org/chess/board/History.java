@@ -56,7 +56,7 @@ public class History {
 
   public boolean movedBefore(Piece piece) {
     List<Move> lista_moves = pieceWiseHistory.get(piece);
-    if (lista_moves.isEmpty()){
+    if (lista_moves != null && !lista_moves.isEmpty() && lista_moves != null && !lista_moves.isEmpty()){
       return false;
     }
     return true;
