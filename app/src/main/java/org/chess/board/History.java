@@ -1,14 +1,17 @@
 package org.chess.board;
 
+import org.chess.Color;
 import org.chess.Move;
 import org.chess.pieces.Piece;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collections;
+
 public class History {
+  private final Map<Color, List<Move>> colorWiseHistory = new EnumMap<>(Color.class);
   private final Map<Piece, List<Move>> pieceWiseHistory = new HashMap<>();
   private final List<Move> gameHistory = new ArrayList<>();
 
@@ -18,21 +21,22 @@ public class History {
   public void addMove(Move move) {
     if (move == null) return;
     gameHistory.add(move); 
-    Piece p = move.piece();
-    pieceWiseHistory.computeIfAbsent(p, k -> new ArrayList<>()).add(move);
+    pieceWiseHistory.computeIfAbsent(move.piece(), k -> new ArrayList<>()).add(move);
+    colorWiseHistory.computeIfAbsent(move.piece().color, k -> new ArrayList<>()).add(move);
   }
 
-  public List<Move> getMovesView(Piece piece) {
-    List<Move> list = pieceWiseHistory.get(piece);
-    if (list == null) {
-      list = new ArrayList<>();
-    }
-    return Collections.unmodifiableList(list);
-    
+  public List<Move> getMoves(Piece piece) {
+    List<Move> list = pieceWiseHistory.computeIfAbsent(piece, k -> new ArrayList<>());
+    return new ArrayList<>(list);
   }
 
-  public List<Move> getMovesView() {
-    return Collections.unmodifiableList(gameHistory);
+  public List<Move> getMoves(Color color) {
+    List<Move> list = colorWiseHistory.computeIfAbsent(color, k -> new ArrayList<>());
+    return new ArrayList<>(list);
+  }
+
+  public List<Move> getMoves() {
+    return new ArrayList<>(gameHistory);
   }
   /**
   * Retorna uma visão imutável do histórico completo do jogo.
@@ -41,19 +45,19 @@ public class History {
   */
 
   public Move getLastMove() {
-    if (gameHistory.isEmpty()){
-      return null;
+    return gameHistory.getLast();
+  }
 
-    }
-    return gameHistory.get(gameHistory.size() - 1); // Retorna ultimo movimento realizado no jogo
+  public Move getLastMove(Color color) {
+    return colorWiseHistory.computeIfAbsent(color, k-> new ArrayList<>()).getLast();
+  }
+
+    public Move getLastMove(Piece piece) {
+    return pieceWiseHistory.computeIfAbsent(piece, k-> new ArrayList<>()).getLast();
   }
 
   public boolean movedBefore(Piece piece) {
-    List<Move> lista_moves = pieceWiseHistory.get(piece);
-    if (lista_moves.isEmpty()){
-      return false;
-    }
-    return true;
+    return getLastMove(piece) != null;
   }
   
 }
