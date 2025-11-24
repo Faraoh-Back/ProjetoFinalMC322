@@ -69,7 +69,7 @@ public class Board { // verificar se precisa ser publica
   }
 
   public Collection<Move> getReadonlyMoves(Piece piece) {
-    return moves.getReadonly(piece);
+    return moves.get(piece);
   }
 
   public Piece doMove(Move move) {
@@ -290,7 +290,7 @@ public class Board { // verificar se precisa ser publica
    * be rotated back.
    */
   private void reevaluate(NonKing piece) {
-    moves.removeAll(piece);
+    moves.remove(piece);
     dependencies.removeAll(piece);
     try {
       var calcResult = piece.calculateMoves(
@@ -313,7 +313,7 @@ public class Board { // verificar se precisa ser publica
   }
 
   private void reevaluate(Pawn piece) {
-    moves.removeAll(piece);
+    moves.remove(piece);
     dependencies.removeAll(piece);
     try {
       var calcResult = piece.calculateMoves(
@@ -339,7 +339,7 @@ public class Board { // verificar se precisa ser publica
   private void reevaluateKings() {
     var kings = kingsMap.values();
     for (King king : kings) {
-      moves.removeAll(king);
+      moves.remove(king);
     }
     try {
       King.calculateMoves(kings, makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore()).forEach(moves::add);

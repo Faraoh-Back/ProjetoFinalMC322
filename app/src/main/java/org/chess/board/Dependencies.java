@@ -1,5 +1,6 @@
 package org.chess.board;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.chess.pieces.Piece;
@@ -49,11 +50,11 @@ class Dependencies {
   }
 
   public Collection<Pos> getDependencies(Piece piece) {
-    return piecePosMap.get(piece);
+    return new ArrayList<>(piecePosMap.get(piece));
   }
 
   public Collection<Piece> getDependents(Pos pos) {
-    return posPieceMap.get(pos);
+    return new ArrayList<>(posPieceMap.get(pos));
   }
 
 }
