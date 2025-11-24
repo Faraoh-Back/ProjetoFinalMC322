@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 import org.chess.Color;
 import org.chess.Move;
-import org.chess.PieceNotInBoard;
 import org.chess.Pos;
+import org.chess.exception.PieceNotInBoard;
 
 
 

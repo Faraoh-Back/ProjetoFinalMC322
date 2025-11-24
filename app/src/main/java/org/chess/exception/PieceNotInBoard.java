@@ -1,8 +1,4 @@
-package org.chess;
+package org.chess.exception;
 
-/**
- * PieceNotInBoard
- */
 public class PieceNotInBoard extends Exception {
-
 }

@@ -16,16 +16,10 @@ public class History {
   }
 
   public void addMove(Move move) {
-    // TODO
-    // verifiicar se movimento eh null
-    gameHistory.add(move); // Adiciona movimento ao historico
-    // Adicao do do ultimo movimento (push back)
+    if (move == null) return;
+    gameHistory.add(move); 
     Piece p = move.piece();
-    List<Move> piece_moves = pieceWiseHistory.get(p);
-    piece_moves.add(move);
-
-
-    
+    pieceWiseHistory.computeIfAbsent(p, k -> new ArrayList<>()).add(move);
   }
 
   public List<Move> getMovesView(Piece piece) {

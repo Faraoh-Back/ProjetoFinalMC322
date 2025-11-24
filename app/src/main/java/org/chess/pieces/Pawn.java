@@ -6,9 +6,10 @@ import java.util.function.Function;
 import org.chess.Color;
 
 import org.chess.Move;
-import org.chess.PieceNotInBoard;
 import org.chess.Pos;
 import org.chess.Move.MoveType;
+import org.chess.exception.InvalidPosition;
+import org.chess.exception.PieceNotInBoard;
 
 public class Pawn extends Piece {
   public Pawn(Color color) {
@@ -66,9 +67,9 @@ public class Pawn extends Piece {
         if (getPiece.apply(rightPos) == movedPiece) {
           Pos movePos = new Pos(row - 1, column + 1);
           if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
         }
-      } catch (IllegalArgumentException e) {
+      } catch (InvalidPosition e) {
       }
 
       // checking left-side en-passant
@@ -77,29 +78,35 @@ public class Pawn extends Piece {
         if (getPiece.apply(rightPos) == movedPiece) {
           Pos movePos = new Pos(row - 1, column - 1);
           if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
         }
-      } catch (IllegalArgumentException e) {
+      } catch (InvalidPosition e) {
       }
 
       // checking en-passant on the side colors
+      // TODO: check null Pos
     } else {
       Pos frontPos = new Pos(row - 1, column);
       if (getPiece.apply(frontPos) == movedPiece) {
         if (color.getLeftColor() == movedPiece.color) { // checking left-side en-passant
           Pos movePos = new Pos(row - 1, column - 1);
           if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
         } else if (color.getRightColor() == movedPiece.color) { // checking right-side en-passant
           Pos movePos = new Pos(row - 1, column + 1);
           if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos));
+            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
         }
       }
     }
     // Add final dependencies that will be needed anyways for checking en-passant
-    dependencies.add(new Pos(row, column + 1));
-    dependencies.add(new Pos(row, column - 1));
+    try {
+        dependencies.add(new Pos(row, column + 1));
+    } catch (InvalidPosition e) {}
+    
+    try {
+        dependencies.add(new Pos(row, column - 1));
+    } catch (InvalidPosition e) {}
   }
 
   private void doubleMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
@@ -130,7 +137,7 @@ public class Pawn extends Piece {
           validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
         }
       }
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidPosition e) {
     }
   }
 
@@ -151,7 +158,7 @@ public class Pawn extends Piece {
           validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
         }
       }
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidPosition e) {
     }
   }
 
@@ -171,7 +178,7 @@ public class Pawn extends Piece {
           validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
         }
       }
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidPosition e) {
     }
   }
 }

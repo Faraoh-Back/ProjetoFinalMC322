@@ -10,7 +10,8 @@ import java.util.function.Predicate;
 import org.chess.Color;
 import org.chess.Move;
 import org.chess.Move.MoveType;
-import org.chess.PieceNotInBoard;
+import org.chess.exception.InvalidPosition;
+import org.chess.exception.PieceNotInBoard;
 import org.chess.Pos;
 
 import com.google.common.collect.HashMultimap;
@@ -72,7 +73,7 @@ public class King extends Piece {
                             && !dangerMap.test(movementPos)) {
                         simpleMoves.add(movementPos);
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (InvalidPosition e) {
                 }
             }
         return simpleMoves;

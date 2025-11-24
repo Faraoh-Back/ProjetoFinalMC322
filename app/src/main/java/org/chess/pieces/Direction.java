@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.chess.Move;
 import org.chess.Move.MoveType;
 import org.chess.Pos;
+import org.chess.exception.InvalidPosition;
 
 /**
  * enum to help rook, bishop and queen type pieces to check
@@ -48,7 +49,7 @@ public enum Direction {
                     break;
                 }
                 validMoves.add(new Move(piece, MoveType.SIMPLE_MOVE, pos));
-            }catch(IllegalArgumentException e){
+            }catch(InvalidPosition e){
                 break;
             }
         }

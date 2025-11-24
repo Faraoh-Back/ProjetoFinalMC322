@@ -6,7 +6,8 @@ import java.util.function.Function;
 import org.chess.Color;
 import org.chess.Move;
 import org.chess.Move.MoveType;
-import org.chess.PieceNotInBoard;
+import org.chess.exception.InvalidPosition;
+import org.chess.exception.PieceNotInBoard;
 import org.chess.Pos;
 
 public class Knight extends NonKing {
@@ -31,14 +32,14 @@ public MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Pi
     int column = thisPos.column();
     
     int[][] possibleMoves = {
-          {row + 3, column + 1},
-          {row + 3, column - 1},
-          {row - 3, column + 1},
-          {row - 3, column - 1},
-          {row + 1, column + 3},
-          {row - 1, column + 3},
-          {row + 1, column - 3},
-          {row - 1, column - 3}
+          {row + 2, column + 1},
+          {row + 2, column - 1},
+          {row - 2, column + 1},
+          {row - 2, column - 1},
+          {row + 1, column + 2},
+          {row - 1, column + 2},
+          {row + 1, column - 2},
+          {row - 1, column - 2}
       };
 
       //creating a list of valid positions in the board
@@ -53,7 +54,7 @@ public MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Pi
         if (pieceInPos == null || pieceInPos.color != super.color) {
           validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, tempPos));
         }
-      } catch (IllegalArgumentException e) {
+      } catch (InvalidPosition e) {
       }
     }
 

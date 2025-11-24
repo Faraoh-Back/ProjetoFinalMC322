@@ -3,9 +3,13 @@ package org.chess;
 import org.chess.pieces.Piece;
 
 /**
- * Move
+ * Move agora contém a referência explícita para a peça capturada via En Passant.
  */
-public record Move(Piece piece, MoveType type, Pos toPos) {
+public record Move(Piece piece, MoveType type, Pos toPos, Piece enPassantVictim) {
+  public Move(Piece piece, MoveType type, Pos toPos) {
+    this(piece, type, toPos, null);
+  }
+
   public enum MoveType {
     EN_PASSANT,
     PAWN_DOUBLE,

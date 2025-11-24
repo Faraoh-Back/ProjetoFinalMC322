@@ -3,8 +3,8 @@ package org.chess.pieces;
 import java.util.function.Function;
 
 import org.chess.Color;
-import org.chess.PieceNotInBoard;
 import org.chess.Pos;
+import org.chess.exception.PieceNotInBoard;
 
 public abstract class NonKing extends Piece {
 

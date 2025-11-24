@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 import org.chess.Color;
 import org.chess.Move;
 import org.chess.Move.MoveType;
-import org.chess.PieceNotInBoard;
+import org.chess.exception.PieceNotInBoard;
 import org.chess.PieceType;
 import org.chess.Pos;
 import org.chess.pieces.Bishop;
@@ -83,7 +83,8 @@ public class Board { // verificar se precisa ser publica
     switch (moveType) {
       case SIMPLE_MOVE:
         return movePiece(piece, toPos);
-
+      case PAWN_DOUBLE:
+        return movePiece(piece, toPos);
       case BISHOP_PROMOTION, QUEEN_PROMOTION, ROOK_PROMOTION, KNIGHT_PROMOTION:
         Piece promotionPiece = switch (moveType) {
           case BISHOP_PROMOTION -> new Bishop(color);
@@ -112,11 +113,14 @@ public class Board { // verificar se precisa ser publica
         return movePiece(piece, toPos);
 
       case EN_PASSANT:
-        Move lastMove = history.getLastMove();
-        Piece eatenPiece = getPiece(lastMove.toPos());
-        removePiece(eatenPiece);
-        movePiece(piece, toPos);
-        return eatenPiece;
+        Piece victim = move.enPassantVictim();
+        if (victim == null) {
+             throw new IllegalStateException("En Passant move without a victim specified.");
+        }
+        removePiece(victim);
+        if (movePiece(piece, toPos) != null)
+          throw new IllegalStateException("en passant should not be able to capture 2 pieces.");
+        return victim;
 
       default:
         throw new IllegalStateException("Unexpected Enum.");
@@ -198,7 +202,7 @@ public class Board { // verificar se precisa ser publica
       kingsMap.put(king.color, king);
     }
 
-    Collection<Piece> needReevaluation = dependencies.getDependents(pos);
+    Collection<Piece> needReevaluation = new ArrayList<>(dependencies.getDependents(pos));
     needReevaluation.add(piece);
     return needReevaluation;
   }
@@ -219,7 +223,7 @@ public class Board { // verificar se precisa ser publica
     if (piece instanceof King king) {
       kingsMap.remove(king.color);
     }
-    Collection<Piece> needReevaluation = dependencies.getDependents(pos);
+    Collection<Piece> needReevaluation = new ArrayList<>(dependencies.getDependents(pos));
     needReevaluation.add(piece);
     return needReevaluation;
   }
@@ -236,7 +240,7 @@ public class Board { // verificar se precisa ser publica
       throw new IllegalArgumentException("Invalid piece: This piece is not on the board.");
     }
 
-    Collection<Piece> needReevaluation = dependencies.getDependents(fromPos);
+    Collection<Piece> needReevaluation = new ArrayList<>(dependencies.getDependents(fromPos));
     needReevaluation.addAll(dependencies.getDependents(toPos));
     needReevaluation.add(piece);
 

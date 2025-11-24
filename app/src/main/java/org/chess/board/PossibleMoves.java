@@ -1,5 +1,6 @@
 package org.chess.board;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ class PossibleMoves {
   }
 
   void removeAll(Piece piece) {
-    removeAll(pieceMovesMap.get(piece));
+    removeAll(new ArrayList<>(pieceMovesMap.get(piece)));
   }
 
   void add(Move move) {

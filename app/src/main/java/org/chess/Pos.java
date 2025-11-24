@@ -3,10 +3,12 @@ package org.chess;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.chess.exception.InvalidPosition;
+
 public record Pos(int row, int column) {
   public Pos {
     if (row < 1 || column < 1 || row > 14 || column > 14 || (row < 4 || row > 11) && (column < 4 || column > 11)) {
-      throw new IllegalArgumentException("Invalid position");
+      throw new InvalidPosition("Invalid position");
     }
   }
 
@@ -16,7 +18,7 @@ public record Pos(int row, int column) {
       for (int j = 1; j <= 14; j++) {
         try {
           list.add(new Pos(i, j));
-        } catch (IllegalArgumentException e1) {
+        } catch (InvalidPosition e1) {
         }
       }
     }
@@ -81,7 +83,7 @@ public record Pos(int row, int column) {
     nOf90degRotations %= 4;
     return switch (nOf90degRotations) {
       case 0 -> this;
-      case 1 -> new Pos(15 - this.row, this.column);
+      case 1 -> new Pos(this.column, 15 - this.row);
       case 2 -> new Pos(15 - this.row, 15 - this.column);
       case 3 -> new Pos(15 - this.column, this.row);
       default -> throw new IllegalStateException("Unexpected remainder.");
