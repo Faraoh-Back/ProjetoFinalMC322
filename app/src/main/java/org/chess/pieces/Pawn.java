@@ -119,7 +119,7 @@ public class Pawn extends Piece {
       return null;
 
     Move lastMove = getLastMove.apply(victimPiece.color);
-    if (lastMove.type() != MoveType.PAWN_DOUBLE || lastMove.piece() != victimPawn)
+    if (lastMove == null || lastMove.type() != MoveType.PAWN_DOUBLE || lastMove.piece() != victimPawn)
       return null;
 
     if (getPiece.apply(disposition.movePos) == null)
@@ -167,7 +167,7 @@ public class Pawn extends Piece {
   private void addForwardMove(Function<Pos, Piece> getPiece, Collection<Move> validMoves, Pos thisPos) {
     try {
       Piece pieceInPos = getPiece.apply(thisPos.top());
-      if (pieceInPos != null && pieceInPos.color != this.color)
+      if (pieceInPos == null)
         checkPromotionAndAddMove(getPiece, validMoves, thisPos.top());
     } catch (InvalidPosition e) {
     }

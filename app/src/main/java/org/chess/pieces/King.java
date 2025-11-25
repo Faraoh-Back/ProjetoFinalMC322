@@ -94,8 +94,11 @@ public class King extends Piece {
 
     private Collection<Move> getCastlingMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Predicate<Pos> dangerMap,
             Predicate<Piece> movedBefore) throws PieceNotInBoard {
+        
+        Collection<Move> moves = new ArrayList<>();
+
         if (movedBefore.test(this))
-            return null;
+            return moves;
 
         Pos thisPos = getPos.apply(this);
         if (thisPos == null)
@@ -104,9 +107,7 @@ public class King extends Piece {
         int column = thisPos.column();
 
         if (dangerMap.test(thisPos))
-            return null;
-
-        Collection<Move> moves = new ArrayList<>();
+            return moves;
 
         if (!movedBefore.test(kingSideRook))
             moves.add(kingsideCaslte(row, column, dangerMap, getPiece));

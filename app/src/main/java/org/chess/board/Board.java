@@ -113,7 +113,7 @@ public class Board {
         return movePiece(piece, toPos);
 
       case EN_PASSANT:
-        Piece victim = move.enPassantVictim();
+        Pawn victim = move.enPassantVictim();
         if (victim == null) {
              throw new IllegalStateException("En Passant move without a victim specified.");
         }
@@ -270,6 +270,8 @@ public class Board {
    */
   private void reevaluate(Collection<Piece> pieces) {
     for (Piece piece : pieces) {
+      if (getPos(piece) == null)
+        continue;
       if (piece instanceof NonKing nonKing) {
         reevaluate(nonKing);
       } else if (piece instanceof Pawn pawn) {
@@ -308,7 +310,8 @@ public class Board {
         moves.add(new Move(
             m.piece(),
             m.type(),
-            m.toPos().fromPerspective(piece.color)));
+            m.toPos().fromPerspective(piece.color),
+            m.enPassantVictim()));
       }
     } catch (PieceNotInBoard e) {
       throw new IllegalStateException("Tried to reevaluate piece that's not on the board");
@@ -332,7 +335,8 @@ public class Board {
         moves.add(new Move(
             m.piece(),
             m.type(),
-            m.toPos().fromPerspective(piece.color)));
+            m.toPos().fromPerspective(piece.color),
+            m.enPassantVictim()));
       }
     } catch (PieceNotInBoard e) {
       throw new IllegalStateException("Tried to reevaluate piece that's not on the board");
