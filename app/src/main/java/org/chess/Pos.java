@@ -25,6 +25,38 @@ public record Pos(int row, int column) {
     return list;
   }
 
+  public Pos left() {
+    return new Pos(this.row, this.column - 1);
+  }
+
+  public Pos right() {
+    return new Pos(this.row, this.column + 1);
+  }
+
+  public Pos top() {
+    return new Pos(this.row - 1, this.column);
+  }
+
+  public Pos bottom() {
+    return new Pos(this.row + 1, this.column);
+  }
+
+  public Pos topLeft() {
+    return new Pos(this.row - 1, this.column - 1);
+  }
+
+  public Pos topRight() {
+    return new Pos(this.row - 1, this.column + 1);
+  }
+
+  public Pos bottomLeft() {
+    return new Pos(this.row + 1, this.column - 1);
+  }
+
+  public Pos bottomRight() {
+    return new Pos(this.row + 1, this.column + 1);
+  }
+
   /**
    * Transforms a position from the board's perspective to the equivalent position
    * from the color's perspective.

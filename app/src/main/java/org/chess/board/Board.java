@@ -27,7 +27,7 @@ import com.google.common.collect.HashBiMap;
 /**
  * Manages the relation between each piece and its position.
  */
-public class Board { // verificar se precisa ser publica
+public class Board {
   // ###########################################################################
   // Data structures
   // ###########################################################################
@@ -127,17 +127,17 @@ public class Board { // verificar se precisa ser publica
     }
   }
 
-  // ###########################################################################
-  // Private read-only operations
-  // ###########################################################################
-
-  private Pos getPos(Piece piece) {
+  public Pos getPos(Piece piece) {
     return boardState.inverse().get(piece);
   }
 
   public Piece getPiece(Pos pos) {
     return boardState.get(pos);
   }
+
+  // ###########################################################################
+  // Private read-only operations
+  // ###########################################################################
 
   private Function<Piece, Pos> makeGetPos(Color color) {
     return (piece) -> getPos(piece).toPerspective(color);
@@ -163,6 +163,9 @@ public class Board { // verificar se precisa ser publica
     return piece -> history.movedBefore(piece);
   }
 
+  private Function<Color, Move> makeGetLastMove() {
+    return color -> history.getLastMove(color);
+  }
 
   // ###########################################################################
   // Private mutating operations
@@ -319,7 +322,7 @@ public class Board { // verificar se precisa ser publica
       var calcResult = piece.calculateMoves(
           makeGetPiece(piece.color),
           makeGetPos(piece.color),
-          history.getLastMove());
+          makeGetLastMove());
 
       for (Pos pos : calcResult.dependencies()) {
         dependencies.add(piece, pos.fromPerspective(piece.color));

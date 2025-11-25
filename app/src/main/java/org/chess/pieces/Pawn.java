@@ -1,6 +1,7 @@
 package org.chess.pieces;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Function;
 
 import org.chess.Color;
@@ -16,98 +17,123 @@ public class Pawn extends Piece {
     super(color);
   }
 
-  public MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos, Move lastMove)
+  public MovesCalcResult calculateMoves(Function<Pos, Piece> getPiece, Function<Piece, Pos> getPos,
+      Function<Color, Move> getLastMove)
       throws PieceNotInBoard {
 
     // Checks if piece is on the board
     Pos thisPos = getPos.apply(this);
-    if (thisPos == null) {
+    if (thisPos == null)
       throw new PieceNotInBoard();
-    }
+    int row = thisPos.row();
+    int column = thisPos.column();
 
     // This will be the MovesCalcResult atributes
     ArrayList<Move> validMoves = new ArrayList<Move>();
     ArrayList<Pos> dependencies = new ArrayList<Pos>();
 
-    // getting this piece's positionu
-    int row = thisPos.row();
-    int column = thisPos.column();
-
-    // En-passant check
-    enPassantMove(getPiece, lastMove, validMoves, dependencies, row, column);
-
-    // Double-step check
+    enPassantMove(getPiece, getLastMove, validMoves, thisPos);
     doubleMove(getPiece, validMoves, dependencies, row, column);
+    addForwardMove(getPiece, validMoves, thisPos);
+    addCaptureMove(getPiece, validMoves, thisPos);
 
-    // Simple Move check
-    simpleMove(getPiece, validMoves, dependencies, row, column);
-
-    // Left Attack-Move check
-    leftMove(getPiece, validMoves, dependencies, row, column);
-
-    // Right Attack-Move check
-    rightMove(getPiece, validMoves, dependencies, row, column);
+    // Add dependencies
+    try {
+      dependencies.add(thisPos.left());
+    } catch (InvalidPosition e) {
+    }
+    try {
+      dependencies.add(thisPos.right());
+    } catch (InvalidPosition e) {
+    }
+    try {
+      dependencies.add(thisPos.top());
+    } catch (InvalidPosition e) {
+    }
+    try {
+      dependencies.add(thisPos.topLeft());
+    } catch (InvalidPosition e) {
+    }
+    try {
+      dependencies.add(thisPos.topRight());
+    } catch (InvalidPosition e) {
+    }
 
     return new MovesCalcResult(validMoves, dependencies);
   }
 
-  private void enPassantMove(Function<Pos, Piece> getPiece, Move lastMove, ArrayList<Move> validMoves,
-      ArrayList<Pos> dependencies, int row, int column) {
+  // ###########################################################################
+  // En Passant logic
+  // ###########################################################################
 
-    // checks if last move was a double pawn move
-    if (lastMove.type() != MoveType.PAWN_DOUBLE)
-      return;
-    Piece movedPiece = lastMove.piece();
+  private void enPassantMove(Function<Pos, Piece> getPiece, Function<Color, Move> getLastMove,
+      ArrayList<Move> validMoves, Pos thisPos) {
 
-    // checks if the moved piece is the color in the front
-    if (color.getFrontColor() == movedPiece.color) {
-      // checking right-side en-passant
-      try {
-        Pos rightPos = new Pos(row, column + 1);
-        if (getPiece.apply(rightPos) == movedPiece) {
-          Pos movePos = new Pos(row - 1, column + 1);
-          if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
-        }
-      } catch (InvalidPosition e) {
-      }
-
-      // checking left-side en-passant
-      try {
-        Pos rightPos = new Pos(row, column - 1);
-        if (getPiece.apply(rightPos) == movedPiece) {
-          Pos movePos = new Pos(row - 1, column - 1);
-          if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
-        }
-      } catch (InvalidPosition e) {
-      }
-
-      // checking en-passant on the side colors
-      // TODO: check null Pos
-    } else {
-      Pos frontPos = new Pos(row - 1, column);
-      if (getPiece.apply(frontPos) == movedPiece) {
-        if (color.getLeftColor() == movedPiece.color) { // checking left-side en-passant
-          Pos movePos = new Pos(row - 1, column - 1);
-          if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
-        } else if (color.getRightColor() == movedPiece.color) { // checking right-side en-passant
-          Pos movePos = new Pos(row - 1, column + 1);
-          if (getPiece.apply(movePos) == null)
-            validMoves.add(new Move(this, MoveType.EN_PASSANT, movePos, movedPiece));
-        }
-      }
+    for (var disposition : getEnPassantDisposition(thisPos)) {
+      Move enPassantMove = checkDisposition(thisPos, getPiece, getLastMove, disposition);
+      if (enPassantMove == null)
+        continue;
+      validMoves.add(enPassantMove);
+      /*
+       * TODO: this move should only be available for 1 round, but there is no way
+       * right now to ensure this, unless you add every piece as a dependency.
+       */
     }
-    // Add final dependencies that will be needed anyways for checking en-passant
-    try {
-        dependencies.add(new Pos(row, column + 1));
-    } catch (InvalidPosition e) {}
-    
-    try {
-        dependencies.add(new Pos(row, column - 1));
-    } catch (InvalidPosition e) {}
   }
+
+  record EnPassantDisposition(Pos victimPos, Color victimColor, Pos movePos) {
+  }
+
+  private Collection<EnPassantDisposition> getEnPassantDisposition(Pos thisPos) {
+    Collection<EnPassantDisposition> positions = new ArrayList<>();
+    try {
+      positions.add(
+          new EnPassantDisposition(thisPos.top(), this.color.getLeftColor(), thisPos.topLeft()));
+    } catch (InvalidPosition e) {
+    }
+    try {
+      positions.add(
+          new EnPassantDisposition(thisPos.top(), this.color.getRightColor(), thisPos.topRight()));
+    } catch (InvalidPosition e) {
+    }
+    try {
+      positions.add(
+          new EnPassantDisposition(thisPos.left(), this.color.getFrontColor(), thisPos.topLeft()));
+    } catch (InvalidPosition e) {
+    }
+    try {
+      positions.add(
+          new EnPassantDisposition(thisPos.right(), this.color.getFrontColor(), thisPos.topRight()));
+    } catch (InvalidPosition e) {
+    }
+    return positions;
+  }
+
+  private Move checkDisposition(Pos thisPos, Function<Pos, Piece> getPiece,
+      Function<Color, Move> getLastMove, EnPassantDisposition disposition) {
+    Piece victimPiece = getPiece.apply(disposition.victimPos);
+
+    if (victimPiece == null
+        || victimPiece.color != disposition.victimColor
+        || !(victimPiece instanceof Pawn victimPawn))
+      return null;
+
+    Move lastMove = getLastMove.apply(victimPiece.color);
+    if (lastMove.type() != MoveType.PAWN_DOUBLE || lastMove.piece() != victimPawn)
+      return null;
+
+    if (getPiece.apply(disposition.movePos) == null)
+      return new Move(this, MoveType.EN_PASSANT, disposition.movePos, victimPawn);
+
+    return null;
+
+    // TODO: Although extremely rare, an en-passant move could be a promotion one,
+    // and we are ignoring this case.
+  }
+
+  // ###########################################################################
+  // Other Moves
+  // ###########################################################################
 
   private void doubleMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
       int row, int column) {
@@ -120,65 +146,41 @@ public class Pawn extends Piece {
     }
   }
 
-  private void rightMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
-      int row, int column) {
+  private void addCaptureMove(Function<Pos, Piece> getPiece, Collection<Move> validMoves, Pos thisPos) {
+    Collection<Pos> positions = new ArrayList<>(2);
     try {
-      Pos movementPos = new Pos(row - 1, column + 1);
-      dependencies.add(movementPos);
-      Piece pieceInPos = getPiece.apply(movementPos);
+      positions.add(thisPos.topLeft());
+    } catch (InvalidPosition e) {
+    }
+    try {
+      positions.add(thisPos.topRight());
+    } catch (InvalidPosition e) {
+    }
 
-      if (pieceInPos != null && pieceInPos.color != super.color) {
-        if (row == 2) {
-          validMoves.add(new Move(this, MoveType.QUEEN_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.KNIGHT_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.ROOK_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.BISHOP_PROMOTION, movementPos));
-        } else {
-          validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
-        }
-      }
+    for (Pos movePos : positions) {
+      Piece pieceInPos = getPiece.apply(movePos);
+      if (pieceInPos != null && pieceInPos.color != this.color)
+        checkPromotionAndAddMove(getPiece, validMoves, movePos);
+    }
+  }
+
+  private void addForwardMove(Function<Pos, Piece> getPiece, Collection<Move> validMoves, Pos thisPos) {
+    try {
+      Piece pieceInPos = getPiece.apply(thisPos.top());
+      if (pieceInPos != null && pieceInPos.color != this.color)
+        checkPromotionAndAddMove(getPiece, validMoves, thisPos.top());
     } catch (InvalidPosition e) {
     }
   }
 
-  private void leftMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
-      int row, int column) {
-    try {
-      Pos movementPos = new Pos(row - 1, column - 1);
-      dependencies.add(movementPos);
-      Piece pieceInPos = getPiece.apply(movementPos);
-
-      if (pieceInPos != null && pieceInPos.color != super.color) {
-        if (row == 2) {
-          validMoves.add(new Move(this, MoveType.QUEEN_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.KNIGHT_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.ROOK_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.BISHOP_PROMOTION, movementPos));
-        } else {
-          validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
-        }
-      }
-    } catch (InvalidPosition e) {
-    }
-  }
-
-  private void simpleMove(Function<Pos, Piece> getPiece, ArrayList<Move> validMoves, ArrayList<Pos> dependencies,
-      int row, int column) {
-    try {
-      Pos movementPos = new Pos(row - 1, column);
-      Piece pieceInPos = getPiece.apply(movementPos);
-      dependencies.add(movementPos);
-      if (pieceInPos == null) {
-        if (row == 2) {
-          validMoves.add(new Move(this, MoveType.QUEEN_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.KNIGHT_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.ROOK_PROMOTION, movementPos));
-          validMoves.add(new Move(this, MoveType.BISHOP_PROMOTION, movementPos));
-        } else {
-          validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movementPos));
-        }
-      }
-    } catch (InvalidPosition e) {
+  private void checkPromotionAndAddMove(Function<Pos, Piece> getPiece, Collection<Move> validMoves, Pos movePos) {
+    if (movePos.row() == 1) {
+      validMoves.add(new Move(this, MoveType.QUEEN_PROMOTION, movePos));
+      validMoves.add(new Move(this, MoveType.KNIGHT_PROMOTION, movePos));
+      validMoves.add(new Move(this, MoveType.ROOK_PROMOTION, movePos));
+      validMoves.add(new Move(this, MoveType.BISHOP_PROMOTION, movePos));
+    } else {
+      validMoves.add(new Move(this, MoveType.SIMPLE_MOVE, movePos));
     }
   }
 }
