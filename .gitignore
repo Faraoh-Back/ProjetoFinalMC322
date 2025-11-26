@@ -23,11 +23,13 @@
 hs_err_pid*
 replay_pid*
 
-.gradle/
-build/
-.vscode/
+.gradle
+.vscode
 
+app/build
+app/bin
 # lsp configs
+
 **/.project
 **/.settings/
 **/.classpath
