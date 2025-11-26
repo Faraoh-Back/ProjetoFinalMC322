@@ -9,6 +9,7 @@ import java.util.Map;
 import org.chess.Color;
 import org.chess.Move;
 import org.chess.Pos;
+import org.chess.pieces.King;
 import org.chess.pieces.Piece;
 
 import com.google.common.collect.HashMultimap;
@@ -29,7 +30,7 @@ class PossibleMoves {
   private final Map<Pos, Multimap<Color, Move>> posColorMovesMap = new HashMap<>();
 
   /* Data structure to organize moves piece. Is used to check a piece's moves */
-  private final Map<Color, Multimap<Piece, Move>> pieceMovesMap = new EnumMap<>(Color.class) ;
+  private final Map<Color, Multimap<Piece, Move>> pieceMovesMap = new EnumMap<>(Color.class);
   // ###########################################################################
   // Package interface
   // ###########################################################################
@@ -53,7 +54,7 @@ class PossibleMoves {
   }
 
   void remove(Move move) {
-    pieceMovesMap.remove(move.piece(), move);
+    pieceMovesMap.get(move.piece().color).remove(move.piece(), move);
     posColorMovesMap.get(move.toPos()).remove(move.piece().color, move);
   }
 
@@ -77,11 +78,16 @@ class PossibleMoves {
 
   public void keepOnlyKingMoves(Color color) {
     for (Piece piece : new ArrayList<>(pieceMovesMap.get(color).keySet()))
-      if (!(piece instanceof org.chess.pieces.King))
+      if (!(piece instanceof King)) {
         remove(piece);
+      }
   }
 
   public boolean hasNoMoves(Color currentTurn) {
     return pieceMovesMap.get(currentTurn).isEmpty();
+  }
+
+  public Collection<Move> getAllMoves(Color color) {
+    return new ArrayList<>(pieceMovesMap.get(color).values());
   }
 }

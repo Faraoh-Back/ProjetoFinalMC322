@@ -28,6 +28,12 @@ public class Main {
             return controller.handleMove(req, moveIndex);
         }, new ThymeleafTemplateEngine());
 
+        // Reiniciar Jogo via POST
+        post("/reset", (req, res) -> {
+            return controller.resetGame(req);
+        }, new ThymeleafTemplateEngine());
+
+
         System.out.println("Servidor rodando em http://localhost:8080");
     }
 }

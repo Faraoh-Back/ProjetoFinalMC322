@@ -5,7 +5,14 @@ import org.chess.Color; // Importante: Importar Color
 import org.chess.Move;
 import org.chess.Pos;
 import org.chess.exception.InvalidPosition;
+import org.chess.pieces.Bishop;
+import org.chess.pieces.King;
+import org.chess.pieces.Knight;
+import org.chess.pieces.Pawn;
 import org.chess.pieces.Piece;
+import org.chess.pieces.Queen;
+import org.chess.pieces.Rook;
+
 import spark.ModelAndView;
 import spark.Request;
 
@@ -21,9 +28,20 @@ public class ChessController {
     // ESTADO VISUAL
     private Color lastTurn = Color.GREEN;
     private int boardRotation = 0; // Acumula o ângulo (ex: 0, -90, -180, -270, -360...)
+    private boolean doTransition = false;
 
     public ChessController(App app) {
         this.app = app;
+    }
+
+    public ModelAndView resetGame(Request req) {
+        app.resetGame();
+        clearSelection();
+        // Reseta o estado visual
+        lastTurn = Color.GREEN;
+        doTransition = false;
+        boardRotation = 0;
+        return renderBoard(req);
     }
 
     public ModelAndView renderBoard(Request req) {
@@ -40,7 +58,7 @@ public class ChessController {
             else if (currentTurn == lastTurn.getRightColor()) {
                 boardRotation += 90;
             }
-            // Fallback para reset (ex: jogo reiniciou do zero)
+            // Fallback para reset (ex: jogo reiniciou de forma inesperada sem passar pelo método resetGame)
             else {
                  switch(currentTurn) {
                      case GREEN -> boardRotation = 0;
@@ -54,7 +72,8 @@ public class ChessController {
         
         // Passa o ângulo calculado para o template
         model.put("boardRotation", boardRotation);
-
+        model.put("doTransition", doTransition);
+        doTransition = false;
         List<List<SquareView>> grid = new ArrayList<>();
 
         Map<Pos, Integer> moveMap = new HashMap<>();
@@ -110,6 +129,7 @@ public class ChessController {
             Piece piece = app.getPiece(currentPos);
 
             if (piece != null && piece.color == app.getCurrentTurn()) {
+                this.selectedPos = currentPos; // CORREÇÃO: Faltava atualizar a selectedPos
                 this.currentContextMoves = new ArrayList<>(app.getPossibleMoves(currentPos));
             } else {
                 clearSelection();
@@ -118,6 +138,7 @@ public class ChessController {
         } catch (InvalidPosition e) {
             clearSelection();
         }
+        doTransition = false;
         return renderBoard(req);
     }
 
@@ -132,6 +153,7 @@ public class ChessController {
         } finally {
             clearSelection();
         }
+        doTransition = true;
         return renderBoard(req);
     }
 
@@ -164,10 +186,20 @@ public class ChessController {
         public String getSymbol() {
             if (piece == null)
                 return "";
-            String name = piece.getClass().getSimpleName();
-            if (name.equals("Knight"))
-                return "N";
-            return name.substring(0, 1);
+            if (piece instanceof Pawn)
+                return "♙";
+            if (piece instanceof Rook)
+                return "♖";
+            if (piece instanceof Knight)
+                return "♘";
+            if (piece instanceof Bishop)
+                return "♗";
+            if (piece instanceof Queen)
+                return "♕";
+            if (piece instanceof King)
+                return "♔";
+            else
+                return "?";
         }
 
         public String getCssClass() {

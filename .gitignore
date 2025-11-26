@@ -24,6 +24,7 @@ replay_pid*
 
 .gradle
 .vscode
+build
 
 app/build
 app/bin

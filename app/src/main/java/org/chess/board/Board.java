@@ -1,7 +1,9 @@
 package org.chess.board;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -48,12 +50,14 @@ public class Board {
     /** Match's history. */
     public final History history = new History();
 
+    private boolean recursiveReevaluate = true;
+
     // ###########################################################################
     // Public interface
     // ###########################################################################
 
-    public Board(Map<Pos, Piece> initialState) {
-        for (Entry<Pos, Piece> entrySet : initialState.entrySet())
+    public Board(Map<Pos, Piece> state) {
+        for (Entry<Pos, Piece> entrySet : state.entrySet())
             addPiece(entrySet.getKey(), entrySet.getValue());
         reevaluate();
     }
@@ -111,7 +115,7 @@ public class Board {
                 removePiece(move.enPassantVictim());
                 movePiece(piece, toPos);
                 break;
-                
+
             default:
                 throw new IllegalStateException("Unexpected Enum.");
         }
@@ -156,6 +160,13 @@ public class Board {
 
     private Function<Color, Move> makeGetLastMove() {
         return color -> history.getLastMove(color);
+    }
+
+    private Board(Map<Pos, Piece> state, boolean recursiveReevaluate) {
+        this.recursiveReevaluate = recursiveReevaluate;
+        for (Entry<Pos, Piece> entrySet : state.entrySet())
+            addPiece(entrySet.getKey(), entrySet.getValue());
+        reevaluate();
     }
 
     // ###########################################################################
@@ -250,10 +261,14 @@ public class Board {
             // every piece. Therefore their calculation must be deferred.
             King.calculateMoves(kingsMap.values(), makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore())
                     .forEach(moves::add);
-            
+
+            if (recursiveReevaluate)
+                preventMovesIfInCheck();
+
             for (King king : kingsMap.values()) {
-                if (moves.isDangerous(getPos(king), king.color)) {
-                    moves.keepOnlyKingMoves(king.color);
+                Color color = king.color;
+                if (moves.hasNoMoves(color)) {
+                    remove(color);
                 }
             }
 
@@ -262,12 +277,44 @@ public class Board {
         }
     }
 
+    private void preventMovesIfInCheck() {
+        for (King king : kingsMap.values()) {
+            Color color = king.color;
+            Pos kingPos = getPos(king);
+            if (moves.isDangerous(kingPos, color)) {
+                Collection<Move> playerMoves = moves.getAllMoves(color);
+                for (Move move : playerMoves) {
+                    Board hypotheticalBoard = new Board(boardState, false);
+                    hypotheticalBoard.doMove(move);
+                    Pos hypotheticalKingPos = hypotheticalBoard.getPos(king);
+                    if (hypotheticalBoard.moves.isDangerous(hypotheticalKingPos, color)) {
+                        moves.remove(move);
+                    }
+                }
+            }
+        }
+    }
+
     public boolean isCheckmate(Color currentTurn) {
         return moves.hasNoMoves(currentTurn);
     }
 
-    public void remove(Color currentTurn) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+    public void remove(Color color) {
+        for (Piece piece : getPieces(color)) {
+            if (piece.color == color) {
+                removePiece(piece);
+            }
+        }
+        kingsMap.remove(color);
+    }
+
+    private Collection<Piece> getPieces(Color color) {
+        Collection<Piece> pieces = new ArrayList<>();
+        for (Piece piece : boardState.values()) {
+            if (piece.color == color) {
+                pieces.add(piece);
+            }
+        }
+        return pieces;
     }
 }

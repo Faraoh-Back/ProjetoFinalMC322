@@ -33,6 +33,26 @@ h1 {
     min-width: 300px;
     z-index: 10;
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.reset-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.reset-btn:hover {
+    background-color: #c0392b;
 }
 
 .turn-indicator {
@@ -56,6 +76,24 @@ h1 {
 /* --- TABULEIRO --- */
 
 .board-grid {
+    display: grid;
+    grid-template-columns: repeat(14, 40px);
+    grid-template-rows: repeat(14, 40px);
+    
+    width: 560px;
+    height: 560px;
+    
+    border: 10px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background-color: #444; 
+    
+    transform-origin: center center;
+    
+    margin: 0 auto;
+}
+
+.board-grid-with-transition {
     display: grid;
     grid-template-columns: repeat(14, 40px);
     grid-template-rows: repeat(14, 40px);

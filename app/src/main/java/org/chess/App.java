@@ -97,6 +97,7 @@ public class App {
         currentTurn = currentTurn.getLeftColor();
         if (board.isCheckmate(currentTurn)) {
             board.remove(currentTurn);
+            currentTurn = currentTurn.getLeftColor();
         }
         players.get(currentTurn).clock.resume();
     }

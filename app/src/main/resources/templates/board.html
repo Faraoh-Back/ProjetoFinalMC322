@@ -9,18 +9,27 @@
 </head>
 <body>
 
-<div class="game-container">
+<div id="game-container" class="game-container">
     <h1>Xadrez 4 Jogadores</h1>
     
     <div id="game-state-and-board" th:fragment="game-state-and-board"> 
         
         <div id="status-bar" class="status-bar">
-            Turno: 
-            <span th:text="${currentTurn}" 
-                  th:class="'turn-indicator ' + ${currentTurn.toString().toLowerCase()}">
-                  VERDE
-            </span>
-            <span th:if="${gameOver}" class="game-over-msg"> - JOGO ACABOU</span>
+            <div>
+                Turno: 
+                <span th:text="${currentTurn}" 
+                      th:class="'turn-indicator ' + ${currentTurn.toString().toLowerCase()}">
+                      VERDE
+                </span>
+                <span th:if="${gameOver}" class="game-over-msg"> - JOGO ACABOU</span>
+            </div>
+            
+            <button class="reset-btn" 
+                    hx-post="/reset" 
+                    hx-target="#game-container" 
+                    hx-swap="outerHTML">
+                Reiniciar Jogo
+            </button>
         </div>
 
         <!-- 
@@ -30,7 +39,7 @@
         -->
         <div id="board" 
              th:style="'transform: rotate(' + ${boardRotation} + 'deg)'"
-             class="board-grid">
+             th:class="${doTransition} ? 'board-grid-with-transition' : 'board-grid'">
             
             <th:block th:each="row : ${grid}">
                 <div th:each="sq : ${row}" 
