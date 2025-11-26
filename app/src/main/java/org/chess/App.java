@@ -95,14 +95,13 @@ public class App {
         board.doMove(move);
         clock.pause();
         currentTurn = currentTurn.getLeftColor();
+        if (board.isCheckmate(currentTurn)) {
+            board.remove(currentTurn);
+        }
         players.get(currentTurn).clock.resume();
     }
 
     public Player getPlayer(Color color) {
         return players.get(color);
-    }
-
-    public java.util.List<Move> getGameHistory() {
-        return board.history.getMovesView();
     }
 }

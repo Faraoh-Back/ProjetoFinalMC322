@@ -250,8 +250,24 @@ public class Board {
             // every piece. Therefore their calculation must be deferred.
             King.calculateMoves(kingsMap.values(), makeGetPiece(), makeGetPos(), makeDangerMap(), makeMovedBefore())
                     .forEach(moves::add);
+            
+            for (King king : kingsMap.values()) {
+                if (moves.isDangerous(getPos(king), king.color)) {
+                    moves.keepOnlyKingMoves(king.color);
+                }
+            }
+
         } catch (PieceNotInBoard e) {
             throw new IllegalStateException("This should not run. Tried to reevaluate piece that's not on the board");
         }
+    }
+
+    public boolean isCheckmate(Color currentTurn) {
+        return moves.hasNoMoves(currentTurn);
+    }
+
+    public void remove(Color currentTurn) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'remove'");
     }
 }
