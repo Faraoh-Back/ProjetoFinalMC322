@@ -20,9 +20,9 @@ public class Player{
     this.clock = clock;
     this.color = color;
 
+    Rook kingsideRook = new Rook(color);
+    Rook queensideRook = new Rook(color);
     for (PieceType pieceType: PieceType.values()) {
-      Rook kingsideRook = new Rook(color);
-      Rook queensideRook = new Rook(color);
       pieces.put(pieceType, switch (pieceType) {
         case QUEENSIDE_BISHOP, KINGSIDE_BISHOP -> new Bishop(color);
         case QUEENSIDE_ROOK -> queensideRook;

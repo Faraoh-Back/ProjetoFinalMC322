@@ -11,7 +11,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -23,9 +22,14 @@
 hs_err_pid*
 replay_pid*
 
-.gradle/
+.gradle
+.vscode
+build
 
+app/build
+app/bin
 # lsp configs
+
 **/.project
 **/.settings/
 **/.classpath

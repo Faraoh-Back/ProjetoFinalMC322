@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Xadrez 4 Jogadores</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="game-container" class="game-container">
+    <h1>Xadrez 4 Jogadores</h1>
+    
+    <div id="game-state-and-board" th:fragment="game-state-and-board"> 
+        
+        <div id="status-bar" class="status-bar">
+            <div>
+                Turno: 
+                <span th:text="${currentTurn}" 
+                      th:class="'turn-indicator ' + ${currentTurn.toString().toLowerCase()}">
+                      VERDE
+                </span>
+                <span th:if="${gameOver}" class="game-over-msg"> - JOGO ACABOU</span>
+            </div>
+            
+            <button class="reset-btn" 
+                    hx-post="/reset" 
+                    hx-target="#game-container" 
+                    hx-swap="outerHTML">
+                Reiniciar Jogo
+            </button>
+        </div>
+
+        <!-- 
+           USO DO STYLE INLINE PARA ROTAÇÃO INFINITA 
+           Removemos as classes 'rotate-X' e usamos a variável calculada no Java.
+           Isso permite ir de -270 para -360 suavemente.
+        -->
+        <div id="board" 
+             th:style="'transform: rotate(' + ${boardRotation} + 'deg)'"
+             th:class="${doTransition} ? 'board-grid-with-transition' : 'board-grid'">
+            
+            <th:block th:each="row : ${grid}">
+                <div th:each="sq : ${row}" 
+                     th:class="'cell ' + ${sq.getCssClass()}"
+                     
+                     th:attr="hx-get=${sq.hxVerb == 'get'} ? ${sq.hxUrl} : null,
+                              hx-post=${sq.hxVerb == 'post'} ? ${sq.hxUrl} : null"
+                     
+                     hx-target="#game-state-and-board" 
+                     hx-select="#game-state-and-board" 
+                     hx-swap="outerHTML">
+                     
+                     <!-- 
+                        CONTRA-ROTAÇÃO DAS PEÇAS
+                        Usamos o inverso da rotação do tabuleiro (-boardRotation)
+                        para manter as peças "em pé".
+                     -->
+                     <div th:if="${sq.piece != null}" 
+                          th:class="'piece ' + ${sq.getPieceColorClass()}"
+                          th:style="'transform: rotate(' + (${boardRotation} * -1) + 'deg)'">
+                         <span th:text="${sq.getSymbol()}">P</span>
+                     </div>
+                     
+                     <div th:if="${sq.isTarget}" class="move-marker"></div>
+                </div>
+            </th:block>
+        </div>
+        
+        <div class="instructions">
+            <p>O tabuleiro gira automaticamente para o jogador atual.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

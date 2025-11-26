@@ -6,9 +6,12 @@
  */
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
-    application
+    id("java")
+    id("application")
 }
+
+group = "org.chess"
+version = "1.0-SNAPSHOT"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -16,28 +19,30 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation(libs.junit.jupiter)
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
+    implementation("com.sparkjava:spark-core:2.9.4")
+    implementation("com.sparkjava:spark-template-thymeleaf:2.7.1") 
+    implementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("com.google.guava:guava:33.0.0-jre")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 application {
-    // Define the main class for the application.
-    mainClass = "org.example.App"
+    mainClass.set("org.chess.web.Main")
 }
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }

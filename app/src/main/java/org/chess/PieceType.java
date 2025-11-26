@@ -26,6 +26,11 @@ public enum PieceType {
   }
 
   public Pos initialPos(Color color) {
-    return initialPos.fromPerspective(color);
+    Pos rotated = initialPos.fromPerspective(color);
+    if (color.queenToTheLeftOfKing)
+      return rotated;
+    else
+      return new Pos(rotated.row(), 15-rotated.column()); 
+
   }
 }

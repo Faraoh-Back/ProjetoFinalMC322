@@ -3,6 +3,9 @@ package org.chess;
 import org.chess.board.Board;
 import org.chess.pieces.Piece;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +39,7 @@ public class App {
 
         // Criar estado inicial do tabuleiro
         Map<Pos, Piece> initialState = new HashMap<>();
-        players = new HashMap<>();
+        players = new EnumMap<>(Color.class);
 
         // Criar cada jogador e posicionar suas peças
         for (Color color : Color.values()) {
@@ -60,81 +63,46 @@ public class App {
         gameOver = false;
     }
 
-    /**
-     * Obtém a cor do jogador atual.
-     */
     public Color getCurrentTurn() {
         return currentTurn;
     }
 
-    /**
-     * Verifica se o jogo acabou.
-     */
     public boolean isGameOver() {
         return gameOver;
     }
 
-
-    /**
-     * Obtém todos os movimentos possíveis de uma peça em determinada posição.
-     * 
-     * @param row linha da peça
-     * @param col coluna da peça
-     * @return lista de movimentos possíveis, ou null se não houver peça
-     */
-    public java.util.Collection<Move> getPossibleMoves(int row, int col) {
-        try {
-            Pos pos = new Pos(row, col);
-            Piece piece = board.getPiece(pos);
-            if (piece == null) {
-                return null;
-            }
+    public Collection<Move> getPossibleMoves(Pos pos) {
+        Piece piece = board.getPiece(pos);
+        if (piece != null)
             return board.getReadonlyMoves(piece);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return new ArrayList<Move>();
     }
 
-    public Player getPlayer(Color color) {
-        return players.get(color);
+    public Piece getPiece(Pos pos) {
+        return board.getPiece(pos);
     }
 
-    /**
-     * Obtém o histórico completo de movimentos do jogo.
-     */
-    public java.util.List<Move> getGameHistory() {
-        return board.history.getMovesView();
-    }
-
-    /**
-     * Calcula o próximo turno na rotação.
-     * Ordem: Verde → Amarelo → Vermelho → Azul → Verde
-     */
-    private Color getNextTurn() {
-        return switch (currentTurn) {
-            case GREEN -> Color.YELLOW;
-            case YELLOW -> Color.RED;
-            case RED -> Color.BLUE;
-            case BLUE -> Color.GREEN;
-        };
-    }
-
-    /**
-     * Reinicia o jogo com um novo tabuleiro.
-     */
     public void resetGame() {
         initializeGame();
     }
 
+    public void doMove(Move move) {
+        if (currentTurn != move.piece().color)
+            throw new IllegalArgumentException("It's not your turn.");
+        Clock clock = players.get(currentTurn).clock;
+        if (clock.getTimeLeftNanosecs() < 0)
+            throw new IllegalArgumentException("Time is over.");
+        board.doMove(move);
+        clock.pause();
+        currentTurn = currentTurn.getLeftColor();
+        if (board.isCheckmate(currentTurn)) {
+            board.remove(currentTurn);
+            currentTurn = currentTurn.getLeftColor();
+        }
+        players.get(currentTurn).clock.resume();
+    }
 
-
-    public static void main(String[] args) {
-        // Exemplo de uso
-        App app = new App();
-        
-        // - app.getPossibleMoves(13, 5) para ver movimentos
-        // - app.executeMove(13, 5, 11, 5) para mover
-        // - app.getCurrentTurn() para saber de quem é a vez
-        // - app.getGameState() para obter estado completo
+    public Player getPlayer(Color color) {
+        return players.get(color);
     }
 }
