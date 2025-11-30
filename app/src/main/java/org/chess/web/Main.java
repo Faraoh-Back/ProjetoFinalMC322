@@ -56,8 +56,8 @@ public class Main {
             }
         });
 
-        // Carregar Jogo via GET
-        get("/load-game", (req, res) -> {
+        // Carregar Jogo via POST
+        post("/load-game", (req, res) -> {
             return controller.loadGame(req);
         }, new ThymeleafTemplateEngine());
 
@@ -66,8 +66,8 @@ public class Main {
             return controller.getSavedGames(req);
         }, new ThymeleafTemplateEngine());
 
-        // Deletar Jogo via DELETE
-        delete("/delete-game", (req, res) -> {
+        // Deletar Jogo via POST
+        post("/delete-game", (req, res) -> {
             return controller.deleteGame(req);
         }, new ThymeleafTemplateEngine());
 

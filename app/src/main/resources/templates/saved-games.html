@@ -8,6 +8,9 @@
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     
+    <!-- CSS -->
+    <link rel="stylesheet" href="/style.css">
+    
     <!-- CSS básico -->
     <style>
         body {
@@ -144,12 +147,12 @@
             </a>
         </header>
 
-        <!-- Messages -->
-        <div th:if="${success != null}" th:text="${success}" class="success"></div>
-        <div th:if="${error != null}" th:text="${error}" class="error"></div>
-
         <!-- Lista de Jogos -->
-        <div class="games-list">
+        <div id="games-list" class="games-list">
+            <!-- Messages -->
+            <div th:if="${success != null}" th:text="${success}" class="success"></div>
+            <div th:if="${error != null}" th:text="${error}" class="error"></div>
+            
             <h3>📁 Jogos Disponíveis</h3>
             
             <div th:if="${#lists.isEmpty(savedGames)}" class="empty-message">
@@ -160,22 +163,22 @@
                 <span class="game-name" th:text="${gameName}">Nome do Jogo</span>
                 
                 <div class="game-actions">
-                    <button class="action-btn load-btn" 
-                            hx-post="/load-game?name=${gameName}" 
+                    <button class="action-btn load-btn"
+                            th:attr="hx-post='/load-game?name=' + ${gameName}"
                             hx-target="body" 
                             hx-swap="innerHTML">
                         🚀 Carregar
                     </button>
                     
-                    <button class="action-btn delete-btn" 
-                            hx-delete="/delete-game?name=${gameName}" 
-                            hx-target="#games-list" 
-                            hx-swap="innerHTML"
-                            onclick="return confirm('Tem certeza que deseja deletar o jogo \"' + this.getAttribute('data-game') + '\"?')"
-                            th:data-game="${gameName}">
+                    <button class="action-btn delete-btn"
+                            th:attr="hx-post='/delete-game?name=' + ${gameName}"
+                            hx-select="#games-list"
+                            hx-target="#games-list"
+                            hx-swap="outerHTML"
+                            th:data-game="${gameName}"
+                            th:onclick="'return confirmDelete(\'' + ${gameName} + '\');'">
                         🗑️ Deletar
-                    </button>
-                </div>
+                    </button>                </div>
             </div>
         </div>
 

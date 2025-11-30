@@ -220,6 +220,9 @@ public class App {
      */
     public boolean deleteSavedGame(String gameName) {
         File saveFile = new File("saved_games", gameName + ".chess");
-        return saveFile.delete();
+        System.out.println("Attempting to delete game file: " + saveFile.getAbsolutePath());
+        boolean deleted = saveFile.delete();
+        System.out.println("File deleted successfully: " + deleted);
+        return deleted;
     }
 }
