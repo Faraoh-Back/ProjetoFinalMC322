@@ -45,17 +45,17 @@ public class History {
   */
 
   public Move getLastMove() {
-    return (gameHistory.size() > 0) ? gameHistory.getLast() : null;
+    return (gameHistory.size() > 0) ? gameHistory.get(gameHistory.size() - 1) : null;
   }
 
   public Move getLastMove(Color color) {
     var playerMoves = colorWiseHistory.computeIfAbsent(color, k-> new ArrayList<>());
-    return (playerMoves.size() > 0) ? playerMoves.getLast() : null;
+    return (playerMoves.size() > 0) ? playerMoves.get(playerMoves.size() - 1) : null;
   }
 
     public Move getLastMove(Piece piece) {
       var pieceMoves = pieceWiseHistory.computeIfAbsent(piece, k-> new ArrayList<>());
-    return (pieceMoves.size() > 0) ? pieceMoves.getLast() : null;
+    return (pieceMoves.size() > 0) ? pieceMoves.get(pieceMoves.size() - 1) : null;
   }
 
   public boolean movedBefore(Piece piece) {
