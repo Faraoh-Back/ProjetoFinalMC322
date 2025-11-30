@@ -26,6 +26,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    implementation("com.google.code.gson:gson:2.10.1")  
 }
 
 java {
