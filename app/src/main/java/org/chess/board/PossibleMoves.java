@@ -1,5 +1,6 @@
 package org.chess.board;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -17,7 +18,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 
 /* Class to store pieces' moves */
-class PossibleMoves {
+class PossibleMoves implements Serializable {
 
   // ###########################################################################
   // Data Structures

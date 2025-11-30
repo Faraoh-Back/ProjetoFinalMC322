@@ -1,6 +1,5 @@
 package org.chess.pieces;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
@@ -12,7 +11,7 @@ import org.chess.exception.InvalidPosition;
 import org.chess.exception.PieceNotInBoard;
 import org.chess.Pos;
 
-public class Knight extends NonKing implements Serializable {
+public class Knight extends NonKing {
 	public Knight(Color color) {
 		super(color);
 	}
