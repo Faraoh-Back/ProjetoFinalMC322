@@ -1,6 +1,7 @@
 package org.chess;
 
 import org.chess.board.Board;
+import org.chess.board.JsonGameSerializer;
 import org.chess.pieces.Piece;
 
 import java.util.ArrayList;
@@ -105,4 +106,22 @@ public class App {
     public Player getPlayer(Color color) {
         return players.get(color);
     }
+    public void saveGame(String filePath) {
+    try {
+            String json = JsonGameSerializer.toJson(this);
+            java.nio.file.Files.writeString(java.nio.file.Path.of(filePath), json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadGame(String filePath) {
+        try {
+            String json = java.nio.file.Files.readString(java.nio.file.Path.of(filePath));
+            JsonGameSerializer.fromJson(this, json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
