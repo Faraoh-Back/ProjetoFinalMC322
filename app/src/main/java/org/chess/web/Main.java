@@ -33,7 +33,37 @@ public class Main {
             return controller.resetGame(req);
         }, new ThymeleafTemplateEngine());
 
+        // === ROTAS DE PERSISTÊNCIA ===
+        
+        // Salvar Jogo via POST
+        post("/save-game", (req, res) -> {
+            return controller.saveGame(req);
+        }, new ThymeleafTemplateEngine());
+
+        // Carregar Jogo via GET
+        get("/load-game", (req, res) -> {
+            return controller.loadGame(req);
+        }, new ThymeleafTemplateEngine());
+
+        // Listar Jogos Salvos via GET
+        get("/saved-games", (req, res) -> {
+            return controller.getSavedGames(req);
+        }, new ThymeleafTemplateEngine());
+
+        // Deletar Jogo via DELETE
+        delete("/delete-game", (req, res) -> {
+            return controller.deleteGame(req);
+        }, new ThymeleafTemplateEngine());
 
         System.out.println("Servidor rodando em http://localhost:8080");
+        System.out.println("Rotas configuradas:");
+        System.out.println("  GET  /     - Tabuleiro principal");
+        System.out.println("  GET  /select?row=X&col=Y - Selecionar peça");
+        System.out.println("  POST /move?moveIndex=Z  - Executar movimento");
+        System.out.println("  POST /reset              - Reiniciar jogo");
+        System.out.println("  POST /save-game?name=X   - Salvar jogo");
+        System.out.println("  GET  /load-game?name=X   - Carregar jogo");
+        System.out.println("  GET  /saved-games        - Listar jogos salvos");
+        System.out.println("  DEL  /delete-game?name=X - Deletar jogo");
     }
 }

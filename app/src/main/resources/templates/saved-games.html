@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Jogos Salvos - Xadrez 4 Jogadores</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    
+    <!-- CSS básico -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        
+        .game-title {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #4a9eff;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: #4a9eff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-btn:hover {
+            background: #3a7ecc;
+        }
+        
+        .games-list {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .games-list h3 {
+            margin-top: 0;
+            color: #4a9eff;
+        }
+        
+        .game-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #333;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4aff4a;
+        }
+        
+        .game-name {
+            font-weight: bold;
+            color: #4aff4a;
+        }
+        
+        .game-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .load-btn {
+            background: #4aff4a;
+            color: black;
+        }
+        
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .empty-message {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .success {
+            background: #4aff4a;
+            color: black;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <h1 class="game-title">
+                💾 Jogos Salvos
+            </h1>
+            <a href="/" class="back-btn" 
+               hx-get="/" 
+               hx-target="body" 
+               hx-swap="innerHTML">
+                ← Voltar ao Jogo
+            </a>
+        </header>
+
+        <!-- Messages -->
+        <div th:if="${success != null}" th:text="${success}" class="success"></div>
+        <div th:if="${error != null}" th:text="${error}" class="error"></div>
+
+        <!-- Lista de Jogos -->
+        <div class="games-list">
+            <h3>📁 Jogos Disponíveis</h3>
+            
+            <div th:if="${#lists.isEmpty(savedGames)}" class="empty-message">
+                🎯 Nenhum jogo salvo ainda. Comece jogando para salvar seu progresso!
+            </div>
+            
+            <div th:each="gameName : ${savedGames}" class="game-item">
+                <span class="game-name" th:text="${gameName}">Nome do Jogo</span>
+                
+                <div class="game-actions">
+                    <button class="action-btn load-btn" 
+                            hx-post="/load-game?name=${gameName}" 
+                            hx-target="body" 
+                            hx-swap="innerHTML">
+                        🚀 Carregar
+                    </button>
+                    
+                    <button class="action-btn delete-btn" 
+                            hx-delete="/delete-game?name=${gameName}" 
+                            hx-target="#games-list" 
+                            hx-swap="innerHTML"
+                            onclick="return confirm('Tem certeza que deseja deletar o jogo \"' + this.getAttribute('data-game') + '\"?')"
+                            th:data-game="${gameName}">
+                        🗑️ Deletar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status do Jogo Atual -->
+        <div th:if="${currentTurn != null}" class="games-list">
+            <h3>🎮 Jogo Atual</h3>
+            <p><strong>Turno:</strong> <span th:text="${currentTurn}">VERDE</span></p>
+            <p><strong>Status:</strong> 
+                <span th:if="${gameOver}" style="color: #ff4444;">🏁 Finalizado</span>
+                <span th:if="${!gameOver}" style="color: #4aff4a;">⚡ Em andamento</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        console.log('💾 Template de jogos salvos carregado!');
+        
+        function confirmDelete(gameName) {
+            return confirm('Tem certeza que deseja deletar o jogo "' + gameName + '"?');
+        }
+    </script>
+</body>
+</html>
