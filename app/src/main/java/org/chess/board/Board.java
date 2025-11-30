@@ -1,9 +1,9 @@
 package org.chess.board;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -28,7 +28,7 @@ import com.google.common.collect.HashBiMap;
 /**
  * Manages the relation between each piece and its position.
  */
-public class Board {
+public class Board implements Serializable {
     // ###########################################################################
     // Data structures
     // ###########################################################################

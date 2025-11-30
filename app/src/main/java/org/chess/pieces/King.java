@@ -18,7 +18,7 @@ import org.chess.Pos;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public class King extends Piece {
+public class King extends Piece implements Serializable{
     private final Rook kingSideRook;
     private final Rook queenSideRook;
 

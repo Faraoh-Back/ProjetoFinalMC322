@@ -4,13 +4,14 @@ import org.chess.Color;
 import org.chess.Move;
 import org.chess.pieces.Piece;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class History {
+public class History implements Serializable{
   private final Map<Color, List<Move>> colorWiseHistory = new EnumMap<>(Color.class);
   private final Map<Piece, List<Move>> pieceWiseHistory = new HashMap<>();
   private final List<Move> gameHistory = new ArrayList<>();

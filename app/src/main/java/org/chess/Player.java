@@ -1,5 +1,6 @@
 package org.chess;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -11,7 +12,7 @@ import org.chess.pieces.King;
 import org.chess.pieces.Knight;
 import org.chess.pieces.Pawn;
 
-public class Player{
+public class Player implements Serializable{
   public final Map<PieceType, Piece> pieces = new EnumMap<>(PieceType.class);
   public final Clock clock;
   public final Color color;
