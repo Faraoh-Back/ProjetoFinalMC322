@@ -1,10 +1,8 @@
-package org.chess.board.persistence.json;
+package org.chess.board;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.chess.*;
-import org.chess.board.Board;
-import org.chess.board.History;
 import org.chess.pieces.*;
 
 import java.lang.reflect.Field;
