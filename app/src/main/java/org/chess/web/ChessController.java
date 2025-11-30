@@ -290,4 +290,15 @@ public class ChessController {
         model.put("doTransition", doTransition);
         return new ModelAndView(model, "board");
     }
+
+    private ModelAndView renderError(String message) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("error", message);
+        model.put("boardHtml", "<div class='error' style='padding: 20px; background: #ff4a4a; color: white; border-radius: 5px;'>" + message + "</div>");
+        model.put("currentTurn", app.getCurrentTurn());
+        model.put("gameOver", app.isGameOver());
+        model.put("boardRotation", boardRotation);
+        model.put("doTransition", doTransition);
+        return new ModelAndView(model, "board");
+    }
 }
