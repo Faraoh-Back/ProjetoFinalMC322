@@ -224,15 +224,28 @@ public class ChessController {
     public ModelAndView saveGame(Request req) {
         String gameName = req.queryParams("name");
         if (gameName == null || gameName.trim().isEmpty()) {
-            return renderError("Nome do jogo é obrigatório para salvar.");
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Nome do jogo é obrigatório para salvar.");
+            model.put("successFlag", false);
+            return new ModelAndView(model, "board");
         }
         
         boolean success = app.saveGame(gameName.trim());
         
         if (success) {
-            return renderSuccess("Jogo salvo com sucesso: " + gameName.trim());
+            Map<String, Object> model = new HashMap<>();
+            model.put("success", "Jogo salvo com sucesso: " + gameName.trim());
+            model.put("successFlag", true);
+            model.put("currentTurn", app.getCurrentTurn());
+            model.put("gameOver", app.isGameOver());
+            model.put("boardRotation", boardRotation);
+            model.put("doTransition", false);
+            return new ModelAndView(model, "board");
         } else {
-            return renderError("Erro ao salvar o jogo: " + gameName.trim());
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Erro ao salvar o jogo: " + gameName.trim());
+            model.put("successFlag", false);
+            return new ModelAndView(model, "board");
         }
     }
 
@@ -268,15 +281,28 @@ public class ChessController {
     public ModelAndView deleteGame(Request req) {
         String gameName = req.queryParams("name");
         if (gameName == null || gameName.trim().isEmpty()) {
-            return renderError("Nome do jogo é obrigatório para deletar.");
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Nome do jogo é obrigatório para deletar.");
+            model.put("successFlag", false);
+            return new ModelAndView(model, "saved-games");
         }
         
         boolean success = app.deleteSavedGame(gameName.trim());
         
         if (success) {
-            return renderSuccess("Jogo deletado com sucesso: " + gameName.trim());
+            // Recarregar a lista de jogos
+            List<String> savedGames = app.getSavedGames();
+            Map<String, Object> model = new HashMap<>();
+            model.put("savedGames", savedGames);
+            model.put("currentTurn", app.getCurrentTurn());
+            model.put("gameOver", app.isGameOver());
+            model.put("success", "Jogo deletado com sucesso: " + gameName.trim());
+            return new ModelAndView(model, "saved-games");
         } else {
-            return renderError("Erro ao deletar o jogo: " + gameName.trim());
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Erro ao deletar o jogo: " + gameName.trim());
+            model.put("successFlag", false);
+            return new ModelAndView(model, "saved-games");
         }
     }
 

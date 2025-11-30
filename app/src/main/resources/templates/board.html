@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <link rel="stylesheet" href="/style.css">
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -34,19 +46,13 @@
                 
                 <!-- Modal para salvar jogo -->
                 <button class="save-btn" 
-                        hx-post="/save-game" 
-                        hx-include="[name='gameName']"
-                        hx-target="#game-container" 
-                        hx-swap="outerHTML"
                         onclick="document.getElementById('saveModal').style.display='block'">
                     💾 Salvar
                 </button>
                 
-                <!-- Modal para carregar jogo -->
+                <!-- Botão para carregar jogo -->
                 <button class="load-btn" 
-                        hx-get="/saved-games" 
-                        hx-target="body" 
-                        hx-swap="innerHTML">
+                        onclick="window.location.href='/saved-games'">
                     📁 Carregar
                 </button>
             </div>
@@ -137,19 +143,51 @@
         }
         
         // Fazer a requisição de salvamento
-        fetch('/save-game?name=' + encodeURIComponent(gameName), {
+        fetch('/save-game-json?name=' + encodeURIComponent(gameName), {
             method: 'POST'
         })
-        .then(response => response.text())
-        .then(html => {
-            document.body.innerHTML = html;
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar mensagem de sucesso temporária
+                showMessage('🎮 ' + data.message, 'success');
+                closeSaveModal();
+            } else if (data.error) {
+                // Mostrar mensagem de erro
+                showMessage('❌ ' + data.error, 'error');
+            }
         })
         .catch(error => {
             console.error('Erro ao salvar:', error);
-            alert('Erro ao salvar o jogo.');
+            showMessage('❌ Erro ao salvar o jogo.', 'error');
         });
+    }
+    
+    function showMessage(message, type) {
+        // Criar elemento de mensagem
+        const messageEl = document.createElement('div');
+        messageEl.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            background: ${type === 'success' ? '#4aff4a' : '#ff4a4a'};
+            color: ${type === 'success' ? 'black' : 'white'};
+        `;
+        messageEl.textContent = message;
         
-        closeSaveModal();
+        // Adicionar ao documento
+        document.body.appendChild(messageEl);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            messageEl.remove();
+        }, 3000);
     }
     
     function closeSaveModal() {

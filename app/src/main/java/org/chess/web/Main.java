@@ -35,10 +35,26 @@ public class Main {
 
         // === ROTAS DE PERSISTÊNCIA ===
         
-        // Salvar Jogo via POST
+        // Salvar Jogo via POST (HTML/HTMX)
         post("/save-game", (req, res) -> {
             return controller.saveGame(req);
         }, new ThymeleafTemplateEngine());
+
+        // Salvar Jogo via POST (JSON para JavaScript)
+        post("/save-game-json", (req, res) -> {
+            res.type("application/json");
+            String gameName = req.queryParams("name");
+            if (gameName == null || gameName.trim().isEmpty()) {
+                return "{\"success\": false, \"error\": \"Nome do jogo é obrigatório para salvar.\"}";
+            }
+            
+            boolean success = gameApp.saveGame(gameName.trim());
+            if (success) {
+                return "{\"success\": true, \"message\": \"Jogo salvo com sucesso: " + gameName.trim() + "\"}";
+            } else {
+                return "{\"success\": false, \"error\": \"Erro ao salvar o jogo: " + gameName.trim() + "\"}";
+            }
+        });
 
         // Carregar Jogo via GET
         get("/load-game", (req, res) -> {
