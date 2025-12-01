@@ -45,9 +45,9 @@ public class testKnight {
 
         //Dictates the behaviour of getPos and getPiece functions
         when(getPos.apply(eq(knight))).thenReturn(knightPos);
+        when(getPiece.apply(any(Pos.class))).thenReturn(null);
         when(getPiece.apply(eq(enemyPos))).thenReturn(enemyPiece);
         when(getPiece.apply(eq(allyPos))).thenReturn(allyPiece);
-        when(getPiece.apply(any(Pos.class))).thenReturn(null);
 
 
         Collection<Move> moves = null;
@@ -58,7 +58,7 @@ public class testKnight {
                 System.out.println(m.toPos());
             }
 
-            assertEquals(6, moves.size());
+            assertEquals(5, moves.size());
 
         }catch(InvalidPosition iPos){
 
