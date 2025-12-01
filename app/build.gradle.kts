@@ -24,9 +24,12 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.9")
     implementation("com.google.guava:guava:33.0.0-jre")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.3")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.google.code.gson:gson:2.11.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.8.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
@@ -39,9 +42,13 @@ application {
     mainClass.set("org.chess.web.Main")
 }
 
-tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
+tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
 
 tasks.withType<JavaCompile> {
