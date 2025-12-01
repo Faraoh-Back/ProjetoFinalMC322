@@ -1,4 +1,4 @@
-# 🏆 Chess4Fun - Xadrez para 4 Jogadores
+# 🏆 Xadrez de 4 - Xadrez para 4 Jogadores
 
 Um jogo de xadrez para 4 jogadores implementado em Java, com funcionalidade completa de salvar/carregar partidas e interface web moderna.
 
@@ -40,8 +40,8 @@ O Chess4Fun é uma variação do xadrez tradicional que permite até 4 jogadores
 
 ### 1. Clonar o Repositório
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd chess4fun-project
+git clone https://github.com/Faraoh-Back/ProjetoFinalMC322.git
+cd ProjetoFinalMC322
 ```
 
 ### 2. Verificar Versão do Gradle
@@ -163,7 +163,7 @@ O servidor está rodando perfeitamente! 🎉
 ## 📁 Estrutura do Projeto
 
 ```
-chess4fun-project/
+ProjetoFinalMC322/
 ├── src/main/java/org/chess/
 │   ├── App.java              # Lógica principal do jogo
 │   ├── web/Main.java         # Servidor Spark e rotas HTTP
@@ -216,4 +216,4 @@ Agora que você sabe como executar o projeto, é só:
 3. **Abrir http://localhost:8080** no navegador
 4. **Começar a jogar** com até 3 amigos!
 
-**Boa sorte nas suas partidas de Chess4Fun!** ♟️🎉
+**Boa sorte nas suas partidas de Xadrez de 4!** ♟️🎉
