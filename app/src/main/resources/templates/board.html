@@ -6,6 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <link rel="stylesheet" href="/style.css">
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -24,12 +36,56 @@
                 <span th:if="${gameOver}" class="game-over-msg"> - JOGO ACABOU</span>
             </div>
             
-            <button class="reset-btn" 
-                    hx-post="/reset" 
-                    hx-target="#game-container" 
-                    hx-swap="outerHTML">
-                Reiniciar Jogo
-            </button>
+            <div class="button-group">
+                <button class="reset-btn" 
+                        hx-post="/reset" 
+                        hx-target="#game-container" 
+                        hx-swap="outerHTML">
+                    🔄 Novo Jogo
+                </button>
+                
+                <!-- Modal para salvar jogo -->
+                <button class="save-btn" 
+                        onclick="document.getElementById('saveModal').style.display='block'">
+                    💾 Salvar
+                </button>
+                
+                <!-- Botão para carregar jogo -->
+                <button class="load-btn" 
+                        onclick="window.location.href='/saved-games'">
+                    📁 Carregar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal de Salvamento -->
+        <div id="saveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2a2a2a; padding: 30px; border-radius: 10px; min-width: 400px;">
+                <h3 style="margin-top: 0; color: #4aff4a;">💾 Salvar Jogo</h3>
+                
+                <form onsubmit="saveGame(event)">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 5px;">Nome do Jogo:</label>
+                        <input type="text" 
+                               name="gameName" 
+                               id="gameNameInput"
+                               placeholder="Digite um nome para o jogo"
+                               style="width: 100%; padding: 10px; border: none; border-radius: 5px; background: #333; color: white;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" 
+                                onclick="closeSaveModal()" 
+                                style="padding: 10px 20px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                style="padding: 10px 20px; background: #4aff4a; color: black; border: none; border-radius: 5px; cursor: pointer;">
+                            💾 Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- 
@@ -73,6 +129,72 @@
         </div>
     </div>
 </div>
+
+<!-- JavaScript -->
+<script>
+    console.log('🎮 Jogo de xadrez carregado!');
+    
+    function saveGame(event) {
+        event.preventDefault();
+        const gameName = document.getElementById('gameNameInput').value;
+        if (!gameName.trim()) {
+            alert('Por favor, digite um nome para o jogo.');
+            return;
+        }
+        
+        // Fazer a requisição de salvamento
+        fetch('/save-game-json?name=' + encodeURIComponent(gameName), {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar mensagem de sucesso temporária
+                showMessage('🎮 ' + data.message, 'success');
+                closeSaveModal();
+            } else if (data.error) {
+                // Mostrar mensagem de erro
+                showMessage('❌ ' + data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao salvar:', error);
+            showMessage('❌ Erro ao salvar o jogo.', 'error');
+        });
+    }
+    
+    function showMessage(message, type) {
+        // Criar elemento de mensagem
+        const messageEl = document.createElement('div');
+        messageEl.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            background: ${type === 'success' ? '#4aff4a' : '#ff4a4a'};
+            color: ${type === 'success' ? 'black' : 'white'};
+        `;
+        messageEl.textContent = message;
+        
+        // Adicionar ao documento
+        document.body.appendChild(messageEl);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            messageEl.remove();
+        }, 3000);
+    }
+    
+    function closeSaveModal() {
+        document.getElementById('saveModal').style.display = 'none';
+        document.getElementById('gameNameInput').value = '';
+    }
+</script>
 
 </body>
 </html>

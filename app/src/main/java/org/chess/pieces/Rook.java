@@ -9,7 +9,7 @@ import org.chess.Move;
 import org.chess.Pos;
 import org.chess.exception.PieceNotInBoard;
 
-public class Rook extends NonKing {
+public class Rook extends NonKing implements java.io.Serializable{
 
     public Rook(Color color) {
         super(color);

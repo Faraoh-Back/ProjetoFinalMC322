@@ -1,6 +1,6 @@
 package org.chess;
 
-public enum PieceType {
+public enum PieceType implements java.io.Serializable{
   QUEENSIDE_ROOK(new Pos(14, 4)),
   QUEENSIDE_KNIGHT(new Pos(14, 5)),
   QUEENSIDE_BISHOP(new Pos(14, 6)),

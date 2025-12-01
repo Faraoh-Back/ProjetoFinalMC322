@@ -1,6 +1,8 @@
 package org.chess;
 
-public class Clock {
+import java.io.Serializable;
+
+public class Clock implements Serializable {
   private long timeLeftNanosecs;
   private long resumedTimestamp;
   private boolean paused;

@@ -1,11 +1,12 @@
 package org.chess;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.chess.exception.InvalidPosition;
 
-public record Pos(int row, int column) {
+public record Pos(int row, int column) implements Serializable {
   public Pos {
     if (row < 1 || column < 1 || row > 14 || column > 14 || (row < 4 || row > 11) && (column < 4 || column > 11)) {
       throw new InvalidPosition("Invalid position");

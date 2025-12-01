@@ -218,4 +218,113 @@ public class ChessController {
             return piece != null ? piece.color.toString().toLowerCase() : "";
         }
     }
+
+    // ===== MÉTODOS DE PERSISTÊNCIA =====
+
+    public ModelAndView saveGame(Request req) {
+        String gameName = req.queryParams("name");
+        if (gameName == null || gameName.trim().isEmpty()) {
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Nome do jogo é obrigatório para salvar.");
+            model.put("successFlag", false);
+            return new ModelAndView(model, "board");
+        }
+        
+        boolean success = app.saveGame(gameName.trim());
+        
+        if (success) {
+            Map<String, Object> model = new HashMap<>();
+            model.put("success", "Jogo salvo com sucesso: " + gameName.trim());
+            model.put("successFlag", true);
+            model.put("currentTurn", app.getCurrentTurn());
+            model.put("gameOver", app.isGameOver());
+            model.put("boardRotation", boardRotation);
+            model.put("doTransition", false);
+            return new ModelAndView(model, "board");
+        } else {
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Erro ao salvar o jogo: " + gameName.trim());
+            model.put("successFlag", false);
+            return new ModelAndView(model, "board");
+        }
+    }
+
+    public ModelAndView loadGame(Request req) {
+        String gameName = req.queryParams("name");
+        if (gameName == null || gameName.trim().isEmpty()) {
+            return renderError("Nome do jogo é obrigatório para carregar.");
+        }
+        
+        boolean success = app.loadGame(gameName.trim());
+        
+        if (success) {
+            clearSelection(); // Limpar seleção ao carregar novo jogo
+            lastTurn = Color.GREEN;
+            doTransition = false;
+            boardRotation = 0;
+            return renderBoard(req);
+        } else {
+            return renderError("Jogo não encontrado ou erro ao carregar: " + gameName.trim());
+        }
+    }
+
+    public ModelAndView getSavedGames(Request req) {
+        List<String> savedGames = app.getSavedGames();
+        Map<String, Object> model = new HashMap<>();
+        model.put("savedGames", savedGames);
+        model.put("currentTurn", app.getCurrentTurn());
+        model.put("gameOver", app.isGameOver());
+        
+        return new ModelAndView(model, "saved-games");
+    }
+
+    public ModelAndView deleteGame(Request req) {
+        String gameName = req.queryParams("name");
+        if (gameName == null || gameName.trim().isEmpty()) {
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Nome do jogo é obrigatório para deletar.");
+            model.put("successFlag", false);
+            return new ModelAndView(model, "saved-games");
+        }
+        
+        boolean success = app.deleteSavedGame(gameName.trim());
+        
+        if (success) {
+            // Recarregar a lista de jogos
+            List<String> savedGames = app.getSavedGames();
+            Map<String, Object> model = new HashMap<>();
+            model.put("savedGames", savedGames);
+            model.put("currentTurn", app.getCurrentTurn());
+            model.put("gameOver", app.isGameOver());
+            model.put("success", "Jogo deletado com sucesso: " + gameName.trim());
+            return new ModelAndView(model, "saved-games");
+        } else {
+            Map<String, Object> model = new HashMap<>();
+            model.put("error", "Erro ao deletar o jogo: " + gameName.trim());
+            model.put("successFlag", false);
+            return new ModelAndView(model, "saved-games");
+        }
+    }
+
+    private ModelAndView renderSuccess(String message) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("success", message);
+        model.put("boardHtml", "<div class='success' style='padding: 20px; background: #4aff4a; color: black; border-radius: 5px;'>" + message + "</div>");
+        model.put("currentTurn", app.getCurrentTurn());
+        model.put("gameOver", app.isGameOver());
+        model.put("boardRotation", boardRotation);
+        model.put("doTransition", doTransition);
+        return new ModelAndView(model, "board");
+    }
+
+    private ModelAndView renderError(String message) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("error", message);
+        model.put("boardHtml", "<div class='error' style='padding: 20px; background: #ff4a4a; color: white; border-radius: 5px;'>" + message + "</div>");
+        model.put("currentTurn", app.getCurrentTurn());
+        model.put("gameOver", app.isGameOver());
+        model.put("boardRotation", boardRotation);
+        model.put("doTransition", doTransition);
+        return new ModelAndView(model, "board");
+    }
 }

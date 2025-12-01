@@ -4,13 +4,14 @@ import org.chess.Color;
 import org.chess.Move;
 import org.chess.pieces.Piece;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class History {
+public class History implements Serializable{
   private final Map<Color, List<Move>> colorWiseHistory = new EnumMap<>(Color.class);
   private final Map<Piece, List<Move>> pieceWiseHistory = new HashMap<>();
   private final List<Move> gameHistory = new ArrayList<>();
@@ -45,17 +46,17 @@ public class History {
   */
 
   public Move getLastMove() {
-    return (gameHistory.size() > 0) ? gameHistory.getLast() : null;
+    return (gameHistory.size() > 0) ? gameHistory.get(gameHistory.size() - 1) : null;
   }
 
   public Move getLastMove(Color color) {
     var playerMoves = colorWiseHistory.computeIfAbsent(color, k-> new ArrayList<>());
-    return (playerMoves.size() > 0) ? playerMoves.getLast() : null;
+    return (playerMoves.size() > 0) ? playerMoves.get(playerMoves.size() - 1) : null;
   }
 
     public Move getLastMove(Piece piece) {
       var pieceMoves = pieceWiseHistory.computeIfAbsent(piece, k-> new ArrayList<>());
-    return (pieceMoves.size() > 0) ? pieceMoves.getLast() : null;
+    return (pieceMoves.size() > 0) ? pieceMoves.get(pieceMoves.size() - 1) : null;
   }
 
   public boolean movedBefore(Piece piece) {

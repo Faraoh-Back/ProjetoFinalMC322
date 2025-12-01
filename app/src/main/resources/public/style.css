@@ -198,3 +198,61 @@ h1 {
     50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
+
+/* === BOTÕES DE PERSISTÊNCIA === */
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.save-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+    background-color: #059669;
+}
+
+.load-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+}
+
+.load-btn:hover {
+    background-color: #2563eb;
+}
+
+/* Responsivo para botões */
+@media (max-width: 600px) {
+    .status-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .save-btn, .load-btn, .reset-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

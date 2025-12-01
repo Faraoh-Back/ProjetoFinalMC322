@@ -1,6 +1,6 @@
 package org.chess;
 
-public enum Color {
+public enum Color implements java.io.Serializable {
   GREEN(false),
   RED(false),
   YELLOW(true),
